@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель модерации - Фотоархив школы №2086{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Панель модерации</h1>
+
+<!-- Учебные годы на модерации -->
+<div class="card" style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 30px;">
+    <h3 style="color: #cb5603; margin-bottom: 20px;">
+        Учебные годы на модерации ({{ pending_years.count }})
+    </h3>
+    
+    {% for year in pending_years %}
+        <div style="display: flex; justify-content: between; align-items: center; padding: 15px; border-bottom: 1px solid #eee;">
+            <div style="flex: 1;">
+                <strong style="font-size: 18px;">{{ year.year }}</strong>
+                <br>
+                <small class="text-muted">Создано: {{ year.created_by.username }} | {{ year.created_at|date:"d.m.Y H:i" }}</small>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a href="{% url 'approve_year' year.id %}" class="btn" style="background: #28a745; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none;">Одобрить</a>
+                <a href="{% url 'reject_year' year.id %}" class="btn" style="background: #dc3545; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none;">Отклонить</a>
+            </div>
+        </div>
+    {% empty %}
+        <p style="color: #666; text-align: center; padding: 20px;">Нет учебных годов на модерации</p>
+    {% endfor %}
+</div>
+
+<!-- События на модерации -->
+<div class="card" style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 30px;">
+    <h3 style="color: #cb5603; margin-bottom: 20px;">
+        События на модерации ({{ pending_events.count }})
+    </h3>
+    
+    {% for event in pending_events %}
+        <div style="display: flex; justify-content: between; align-items: center; padding: 15px; border-bottom: 1px solid #eee;">
+            <div style="flex: 1;">
+                <strong style="font-size: 18px;">{{ event.title }}</strong>
+                <br>
+                <small class="text-muted">
+                    Учебный год: {{ event.year_album.year }} | 
+                    Создано: {{ event.created_by.username }} | 
+                    {{ event.created_at|date:"d.m.Y H:i" }}
+                </small>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a href="{% url 'approve_event' event.id %}" class="btn" style="background: #28a745; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none;">Одобрить</a>
+                <a href="{% url 'reject_event' event.id %}" class="btn" style="background: #dc3545; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none;">Отклонить</a>
+            </div>
+        </div>
+    {% empty %}
+        <p style="color: #666; text-align: center; padding: 20px;">Нет событий на модерации</p>
+    {% endfor %}
+</div>
+
+<!-- Фото на модерации -->
+<div class="card" style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 30px;">
+    <h3 style="color: #cb5603; margin-bottom: 20px;">
+        Фото на модерации ({{ pending_photos.count }})
+    </h3>
+    
+    {% for photo in pending_photos %}
+        <div style="display: flex; justify-content: between; align-items: center; padding: 15px; border-bottom: 1px solid #eee;">
+            <div style="flex: 1;">
+                <strong style="font-size: 18px;">Фото #{{ photo.id }}</strong>
+                <br>
+                <small class="text-muted">
+                    Событие: {{ photo.event_album.title }} | 
+                    Загружено: {{ photo.uploaded_by.username }} | 
+                    {{ photo.uploaded_at|date:"d.m.Y H:i" }}
+                </small>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a href="{% url 'approve_photo' photo.id %}" class="btn" style="background: #28a745; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none;">Одобрить</a>
+                <a href="{% url 'reject_photo' photo.id %}" class="btn" style="background: #dc3545; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none;">Отклонить</a>
+            </div>
+        </div>
+    {% empty %}
+        <p style="color: #666; text-align: center; padding: 20px;">Нет фото на модерации</p>
+    {% endfor %}
+</div>
+
+<div style="text-align: center; margin-top: 30px;">
+    <a href="{% url 'home' %}" class="btn" style="background: #cb5603; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">На главную</a>
+</div>
+{% endblock %}

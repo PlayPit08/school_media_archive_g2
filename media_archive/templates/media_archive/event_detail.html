@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ event.title }} - Фотоархив школы №2086{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: between; align-items: center; margin-bottom: 30px;">
+    <div>
+        <nav style="margin-bottom: 10px; font-size: 14px; color: #666;">
+            <a href="{% url 'home' %}" style="color: #cb5603; text-decoration: none;">Главная</a>
+            &nbsp;→&nbsp;
+            <a href="{% url 'year_detail' event.year_album.id %}" style="color: #cb5603; text-decoration: none;">{{ event.year_album.year }}</a>
+            &nbsp;→&nbsp;
+            <span>{{ event.title }}</span>
+        </nav>
+        <h1 class="page-title" style="margin-bottom: 0;">{{ event.title }}</h1>
+        <p style="color: #666; margin-top: 5px;">Учебный год: {{ event.year_album.year }}</p>
+    </div>
+    <a href="{% url 'year_detail' event.year_album.id %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+        ← Назад к году
+    </a>
+</div>
+
+{% if photos %}
+<!-- Миниатюры фотографий -->
+<div class="photos-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
+    {% for photo in photos %}
+    <div class="photo-thumbnail" 
+         style="background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; cursor: pointer; transition: all 0.3s ease;"
+         onclick="openModal({{ forloop.counter0 }})">
+        {% if photo.image %}
+            <img src="{{ photo.image.url }}" 
+                 alt="Фото {{ photo.id }}" 
+                 style="width: 100%; height: 150px; object-fit: cover; border-radius: 6px; margin-bottom: 8px;">
+        {% else %}
+            <div style="width: 100%; height: 150px; background: #f8f9fa; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; color: #666;">
+                📷
+            </div>
+        {% endif %}
+        <div style="color: #666; font-size: 11px;">
+            Фото #{{ forloop.counter }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Модальное окно для просмотра фото -->
+<div id="imageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="position: relative; max-width: 90%; max-height: 90%;">
+        <!-- Кнопка закрытия -->
+        <button onclick="closeModal()" style="position: absolute; top: -40px; right: 0; background: none; border: none; color: white; font-size: 30px; cursor: pointer; z-index: 1001;">
+            ✕
+        </button>
+        
+        <!-- Изображение -->
+        <img id="modalImage" src="" alt="" style="max-width: 100%; max-height: 80vh; object-fit: contain;">
+        
+        <!-- Навигация -->
+        <div style="position: absolute; top: 50%; width: 100%; display: flex; justify-content: space-between; transform: translateY(-50%);">
+            <button onclick="prevImage()" style="background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; padding: 10px 15px; cursor: pointer; border-radius: 4px; margin-left: 10px;">
+                ‹
+            </button>
+            <button onclick="nextImage()" style="background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; padding: 10px 15px; cursor: pointer; border-radius: 4px; margin-right: 10px;">
+                ›
+            </button>
+        </div>
+        
+        <!-- Информация и кнопка скачивания -->
+        <div style="position: absolute; bottom: -50px; left: 0; width: 100%; text-align: center; color: white;">
+            <span id="imageInfo" style="margin-right: 20px;"></span>
+            <button onclick="downloadImage()" style="background: #cb5603; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                📥 Скачать
+            </button>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div style="text-align: center; padding: 60px 20px; background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+    <div style="font-size: 48px; margin-bottom: 20px;">🖼️</div>
+    <h3 style="color: #666; margin-bottom: 15px;">Пока нет фотографий</h3>
+    <p style="color: #888; margin-bottom: 25px;">Фотографии для этого события еще не загружены</p>
+    {% if user.is_authenticated %}
+    <a href="{% url 'upload_photo' %}" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none;">
+        ➕ Загрузить первое фото
+    </a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentImageIndex = 0;
+const photos = [
+    {% for photo in photos %}
+    {
+        url: "{{ photo.image.url }}",
+        id: {{ photo.id }},
+        uploaded_by: "{{ photo.uploaded_by.username }}",
+        uploaded_at: "{{ photo.uploaded_at|date:'d.m.Y H:i' }}",
+        filename: "{{ photo.image.name|default:'photo' }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+function openModal(index) {
+    currentImageIndex = index;
+    updateModal();
+    document.getElementById('imageModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden'; // Блокируем скролл страницы
+}
+
+function closeModal() {
+    document.getElementById('imageModal').style.display = 'none';
+    document.body.style.overflow = 'auto'; // Восстанавливаем скролл
+}
+
+function updateModal() {
+    if (photos.length === 0) return;
+    
+    const photo = photos[currentImageIndex];
+    const modalImage = document.getElementById('modalImage');
+    const imageInfo = document.getElementById('imageInfo');
+    
+    modalImage.src = photo.url;
+    modalImage.alt = `Фото ${photo.id}`;
+    imageInfo.textContent = `Фото ${currentImageIndex + 1} из ${photos.length} | Загружено: ${photo.uploaded_by} (${photo.uploaded_at})`;
+}
+
+function nextImage() {
+    if (photos.length === 0) return;
+    currentImageIndex = (currentImageIndex + 1) % photos.length;
+    updateModal();
+}
+
+function prevImage() {
+    if (photos.length === 0) return;
+    currentImageIndex = (currentImageIndex - 1 + photos.length) % photos.length;
+    updateModal();
+}
+
+function downloadImage() {
+    if (photos.length === 0) return;
+    const photo = photos[currentImageIndex];
+    const link = document.createElement('a');
+    link.href = photo.url;
+    link.download = `photo_${photo.id}_${photo.filename}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Закрытие по ESC
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeModal();
+    } else if (event.key === 'ArrowLeft') {
+        prevImage();
+    } else if (event.key === 'ArrowRight') {
+        nextImage();
+    }
+});
+
+// Закрытие по клику на фон
+document.getElementById('imageModal').addEventListener('click', function(event) {
+    if (event.target === this) {
+        closeModal();
+    }
+});
+
+// Масштабирование колесиком мыши (опционально)
+document.getElementById('modalImage').addEventListener('wheel', function(event) {
+    event.preventDefault();
+    const scale = event.deltaY > 0 ? 0.9 : 1.1;
+    this.style.transform = this.style.transform 
+        ? `scale(${parseFloat(this.style.transform.replace('scale(', '').replace(')', '')) * scale})`
+        : `scale(${scale})`;
+});
+
+// Сброс масштаба при смене фото
+function updateModal() {
+    if (photos.length === 0) return;
+    
+    const photo = photos[currentImageIndex];
+    const modalImage = document.getElementById('modalImage');
+    const imageInfo = document.getElementById('imageInfo');
+    
+    modalImage.src = photo.url;
+    modalImage.alt = `Фото ${photo.id}`;
+    modalImage.style.transform = 'scale(1)'; // Сброс масштаба
+    imageInfo.textContent = `Фото ${currentImageIndex + 1} из ${photos.length} | Загружено: ${photo.uploaded_by} (${photo.uploaded_at})`;
+}
+</script>
+
+<style>
+.photo-thumbnail:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+#modalImage {
+    transition: transform 0.3s ease;
+    cursor: zoom-in;
+}
+
+#modalImage.zoomed {
+    cursor: zoom-out;
+}
+</style>
+{% endblock %}

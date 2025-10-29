@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="page-title">Наша история</h1>
+
+<section class="search-section" id="search">
+    <h2 class="section-title">Поиск по годам</h2>
+    
+    <div class="search-form">
+        <input type="text" class="search-input" placeholder="Введите год (например: 2023)" id="searchInput">
+        <button type="button" class="search-button" id="searchButton">Найти</button>
+    </div>
+    
+    <div class="loading" id="loadingIndicator">
+        Загрузка...
+    </div>
+    
+    <div class="years-container" id="yearsContainer">
+        {% for row in years %}
+        <div class="years-row">
+            {% for year in row %}
+            <div class="year-card" data-year="{{ year.year }}" 
+                 onclick="location.href='{% url 'year_detail' year.id %}'" 
+                 style="cursor: pointer;">
+                <div class="year-title">{{ year.year }}</div>
+                <div style="margin-top: 10px; font-size: 14px; color: #666;">
+                    {{ year.events.count }} событий
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% empty %}
+        <div class="no-results">
+            Учебные годы не найдены.
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="no-results" id="noResults">
+        По вашему запросу ничего не найдено. Попробуйте другой год.
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-section {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        margin-bottom: 40px;
+    }
+    
+    .section-title {
+        margin-bottom: 25px;
+        color: #000;
+        font-size: 24px;
+        font-weight: 700;
+        text-align: center;
+    }
+    
+    .search-form {
+        display: flex;
+        gap: 15px;
+        max-width: 500px;
+        margin: 0 auto 30px;
+    }
+    
+    .search-input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+    
+    .search-input:focus {
+        outline: none;
+        border-color: #cb5603;
+    }
+    
+    .search-button {
+        background: #cb5603;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .search-button:hover {
+        background: #a84502;
+    }
+    
+    .years-container {
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+    }
+    
+    .years-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 30px;
+        position: relative;
+    }
+    
+    .years-row:first-child::after {
+        content: "";
+        position: absolute;
+        bottom: -20px;
+        left: 5%;
+        width: 90%;
+        height: 2px;
+        background: #cb5603;
+    }
+    
+    .year-card {
+        background: #f8f9fa;
+        padding: 50px 30px;
+        border-radius: 8px;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 1px solid #e0e0e0;
+        width: 30%;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+    
+    .year-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        background: #fff;
+    }
+    
+    .year-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #000;
+    }
+    
+    .no-results {
+        text-align: center;
+        padding: 30px;
+        font-size: 18px;
+        color: #666;
+        display: none;
+    }
+    
+    .year-card.highlight {
+        background-color: #fff3e0;
+        border-color: #cb5603;
+        box-shadow: 0 4px 12px rgba(203, 86, 3, 0.2);
+    }
+    
+    .loading {
+        text-align: center;
+        padding: 20px;
+        display: none;
+    }
+    
+    @media (max-width: 768px) {
+        .search-form {
+            flex-direction: column;
+        }
+        
+        .years-row {
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .year-card {
+            width: 100%;
+            padding: 40px 25px;
+        }
+        
+        .year-title {
+            font-size: 22px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const yearsContainer = document.getElementById('yearsContainer');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const noResults = document.getElementById('noResults');
+        
+        function performSearch() {
+            const searchTerm = searchInput.value.trim();
+            
+            if (searchTerm === '') {
+                location.reload();
+                return;
+            }
+            
+            loadingIndicator.style.display = 'block';
+            
+            fetch(`/search/?q=${encodeURIComponent(searchTerm)}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                updateSearchResults(data.results);
+            })
+            .catch(error => {
+                console.error('Ошибка поиска:', error);
+                performClientSideSearch(searchTerm);
+            })
+            .finally(() => {
+                loadingIndicator.style.display = 'none';
+            });
+        }
+        
+        function updateSearchResults(results) {
+            yearsContainer.innerHTML = '';
+            
+            if (results.length === 0) {
+                noResults.style.display = 'block';
+                return;
+            }
+            
+            noResults.style.display = 'none';
+            
+            for (let i = 0; i < results.length; i += 3) {
+                const row = document.createElement('div');
+                row.className = 'years-row';
+                
+                for (let j = i; j < i + 3 && j < results.length; j++) {
+                    const year = results[j];
+                    const card = document.createElement('div');
+                    card.className = 'year-card highlight';
+                    card.setAttribute('data-year', year.year);
+                    card.style.cursor = 'pointer';
+                    card.onclick = function() {
+                        window.location.href = `/year/${year.id}/`;
+                    };
+                    card.innerHTML = `
+                        <div class="year-title">${year.year}</div>
+                        <div style="margin-top: 10px; font-size: 14px; color: #666;">
+                            ${year.events_count || 0} событий
+                        </div>
+                    `;
+                    row.appendChild(card);
+                }
+                
+                yearsContainer.appendChild(row);
+            }
+        }
+        
+        function performClientSideSearch(searchTerm) {
+            const yearCards = document.querySelectorAll('.year-card');
+            let found = false;
+            
+            yearCards.forEach(card => {
+                card.classList.remove('highlight');
+                const year = card.getAttribute('data-year');
+                
+                if (year.includes(searchTerm)) {
+                    card.style.display = 'block';
+                    card.classList.add('highlight');
+                    found = true;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            if (!found) {
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+            }
+        }
+        
+        searchButton.addEventListener('click', performSearch);
+        
+        searchInput.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // Добавляем возможность сброса поиска при клике на логотип или другие элементы
+        document.addEventListener('click', function(event) {
+            // Если клик на логотип или ссылку "Главная", сбрасываем поиск
+            if (event.target.closest('.logo') || 
+                (event.target.tagName === 'A' && event.target.getAttribute('href') === '/')) {
+                if (searchInput.value.trim() !== '') {
+                    searchInput.value = '';
+                    // Не перезагружаем страницу сразу, даем пользователю возможность увидеть сброс
+                    setTimeout(() => {
+                        if (searchInput.value === '') {
+                            location.reload();
+                        }
+                    }, 100);
+                }
+            }
+        });
+
+        // Обработка изменения размера окна для адаптивности
+        window.addEventListener('resize', function() {
+            // При изменении размера окна пересчитываем отображение
+            const currentSearch = searchInput.value.trim();
+            if (currentSearch !== '') {
+                performClientSideSearch(currentSearch);
+            }
+        });
+    });
+</script>
+{% endblock %}

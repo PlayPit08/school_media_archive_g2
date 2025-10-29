@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Добавить учебный год - Фотоархив школы №2086{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Добавить учебный год</h1>
+
+<div style="max-width: 500px; margin: 0 auto;">
+    <div class="card" style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 20px;">
+                <label for="id_year" style="display: block; margin-bottom: 8px; font-weight: 500;">Учебный год:</label>
+                <input type="text" name="year" id="id_year" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Например: 2023-2024">
+            </div>
+            
+            <button type="submit" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; width: 100%;">
+                Создать учебный год
+            </button>
+        </form>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{% url 'profile' %}" style="color: #cb5603;">Вернуться в профиль</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

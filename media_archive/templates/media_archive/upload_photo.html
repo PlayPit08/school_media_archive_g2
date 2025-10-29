@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Загрузить фото - Фотоархив школы №2086{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Загрузить фото</h1>
+
+<div style="max-width: 500px; margin: 0 auto;">
+    <div class="card" style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 20px;">
+                <label for="id_event_album" style="display: block; margin-bottom: 8px; font-weight: 500;">Событие:</label>
+                <select name="event_album" id="id_event_album" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="">Выберите событие</option>
+                    {% for event in form.event_album.field.queryset %}
+                        <option value="{{ event.id }}">{{ event.title }} ({{ event.year_album.year }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label for="id_image" style="display: block; margin-bottom: 8px; font-weight: 500;">Фото:</label>
+                <input type="file" name="image" id="id_image" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" accept="image/*">
+            </div>
+            
+            <button type="submit" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; width: 100%;">
+                Загрузить фото
+            </button>
+        </form>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{% url 'profile' %}" style="color: #cb5603;">Вернуться в профиль</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
