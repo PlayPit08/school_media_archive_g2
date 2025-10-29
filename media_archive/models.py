@@ -44,6 +44,7 @@ class EventAlbum(models.Model):
         max_length=200, 
         verbose_name='Название события'
     )
+    # УБЕРИТЕ поле description или сделайте его необязательным
     year_album = models.ForeignKey(
         YearAlbum, 
         on_delete=models.CASCADE, 
