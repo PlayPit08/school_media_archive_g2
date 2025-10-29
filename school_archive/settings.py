@@ -128,3 +128,21 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_REDIRECT_URL = '/profile/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
+
+# Автоматическое создание папок для медиа-файлов
+def create_media_folders():
+    """Создает необходимые папки для медиа-файлов при запуске проекта"""
+    media_folders = [
+        MEDIA_ROOT,
+        os.path.join(MEDIA_ROOT, 'photos'),  # Только photos внутри media
+    ]
+    
+    for folder in media_folders:
+        try:
+            os.makedirs(folder, exist_ok=True)
+            print(f"✅ Папка создана/проверена: {folder}")
+        except Exception as e:
+            print(f"⚠️ Ошибка при создании папки {folder}: {e}")
+
+# Создаем папки при импорте настроек
+create_media_folders()
