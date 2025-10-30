@@ -3,128 +3,175 @@
 {% block title %}Личный кабинет - Фотоархив школы №2086{% endblock %}
 
 {% block content %}
-<h1 class="page-title">Личный кабинет</h1>
+<div style="max-width: 1200px; margin: 0 auto;">
+    <h1 class="page-title" style="margin-bottom: 30px;">Личный кабинет</h1>
 
-<!-- Кнопки модерации и админки для соответствующих пользователей -->
-{% if user.is_staff or user.is_superuser %}
-<div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 30px;">
+    <!-- Панель модератора/администратора -->
     {% if user.is_staff or user.is_superuser %}
-        <a href="{% url 'moderation_dashboard' %}" class="btn" style="background: #ffc107; color: #000; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500;">
-            📋 Панель модерации
-        </a>
-    {% endif %}
-    {% if user.is_superuser %}
-        <a href="/admin/" class="btn" style="background: transparent; color: #cb5603; border: 2px solid #cb5603; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500;" target="_blank">
-            ⚙️ Админка
-        </a>
-    {% endif %}
-</div>
-{% endif %}
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 25px;">
+        <h3 style="margin-bottom: 15px; color: #333;">
+            {% if user.is_superuser %}
+            Административная панель
+            {% else %}
+            Панель модератора
+            {% endif %}
+        </h3>
 
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 20px;">
-    
-    <!-- Мои учебные годы -->
-    <div class="card" style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
-        <h3 style="color: #cb5603; margin-bottom: 20px;">Мои учебные годы ({{ user_years.count }})</h3>
-        {% if user_years %}
-            <ul style="list-style: none; padding: 0;">
-            {% for year in user_years %}
-                <li style="padding: 10px; border-bottom: 1px solid #eee;">
-                    <strong>{{ year.year }}</strong> 
-                    <span style="float: right; 
-                                color: {% if year.status == 'approved' %}#28a745{% elif year.status == 'pending' %}#856404{% else %}#721c24{% endif %};
-                                background: {% if year.status == 'approved' %}#d4edda{% elif year.status == 'pending' %}#fff3cd{% else %}#f8d7da{% endif %};
-                                padding: 2px 8px; border-radius: 12px; font-size: 12px;">
-                        {% if year.status == 'approved' %}✅ Одобрено
-                        {% elif year.status == 'pending' %}⏳ На модерации
-                        {% else %}❌ Отклонено{% endif %}
-                    </span>
-                </li>
-            {% endfor %}
-            </ul>
-        {% else %}
-            <p style="color: #666;">Вы еще не создали учебные годы</p>
-        {% endif %}
-        <!-- УВЕЛИЧЕННЫЙ ОТСТУП -->
-        <div style="margin-top: 25px;">
-            <a href="{% url 'create_year' %}" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; display: inline-block; width: 100%; text-align: center;">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href="{% url 'moderation_dashboard' %}" class="btn" style="background: #28a745; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: 500; border: none;">
+                Панель модерации
+            </a>
+
+            {% if user.is_superuser %}
+            <a href="/admin/" class="btn" style="background: #cb5603; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: 500; border: none;">
+                Админ-панель Django
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Остальная часть кода без изменений -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; margin-bottom: 40px;">
+
+        <!-- Учебные годы -->
+        <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+            <h2 style="color: #cb5603; margin-bottom: 20px;">📅 Мои учебные годы ({{ user_years.count }})</h2>
+
+            {% if user_years %}
+                {% for year in user_years %}
+                <div style="padding: 15px; background: #f8f9fa; border-radius: 5px; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>{{ year.year }}</strong>
+                            <span style="color: {% if year.status == 'approved' %}#28a745{% elif year.status == 'rejected' %}#dc3545{% else %}#ffc107{% endif %}; font-size: 12px; margin-left: 10px;">
+                                {{ year.get_status_display }}
+                            </span>
+                        </div>
+                        <small style="color: #666;">{{ year.created_at|date:"d.m.Y" }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: #666; margin-bottom: 20px;">Вы еще не создали учебные годы</p>
+            {% endif %}
+
+            <a href="{% url 'create_year' %}" class="btn" style="background: #cb5603; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; display: inline-block; margin-top: 10px;">
                 ➕ Добавить учебный год
             </a>
         </div>
-    </div>
-    
-    <!-- Мои события -->
-    <div class="card" style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
-        <h3 style="color: #cb5603; margin-bottom: 20px;">Мои события ({{ user_events.count }})</h3>
-        {% if user_events %}
-            <ul style="list-style: none; padding: 0;">
-            {% for event in user_events %}
-                <li style="padding: 10px; border-bottom: 1px solid #eee;">
-                    <strong>{{ event.title }}</strong>
-                    <br>
-                    <small>Год: {{ event.year_album.year }}</small>
-                    <span style="float: right; 
-                                color: {% if event.status == 'approved' %}#28a745{% elif event.status == 'pending' %}#856404{% else %}#721c24{% endif %};
-                                background: {% if event.status == 'approved' %}#d4edda{% elif event.status == 'pending' %}#fff3cd{% else %}#f8d7da{% endif %};
-                                padding: 2px 8px; border-radius: 12px; font-size: 12px;">
-                        {% if event.status == 'approved' %}✅ Одобрено
-                        {% elif event.status == 'pending' %}⏳ На модерации
-                        {% else %}❌ Отклонено{% endif %}
-                    </span>
-                </li>
-            {% endfor %}
-            </ul>
-        {% else %}
-            <p style="color: #666;">Вы еще не создали события</p>
-        {% endif %}
-        <!-- УВЕЛИЧЕННЫЙ ОТСТУП -->
-        <div style="margin-top: 25px;">
-            <a href="{% url 'create_event' %}" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; display: inline-block; width: 100%; text-align: center;">
+
+        <!-- Классы -->
+        <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+            <h2 style="color: #cb5603; margin-bottom: 20px;">🏫 Мои классы ({{ user_classes.count }})</h2>
+
+            {% if user_classes %}
+                {% for class in user_classes %}
+                <div style="padding: 15px; background: #f8f9fa; border-radius: 5px; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>{{ class.class_name }}</strong>
+                            <span style="color: #666; font-size: 12px; margin-left: 10px;">
+                                ({{ class.year_album.year }})
+                            </span>
+                            <span style="color: {% if class.status == 'approved' %}#28a745{% elif class.status == 'rejected' %}#dc3545{% else %}#ffc107{% endif %}; font-size: 12px; margin-left: 10px;">
+                                {{ class.get_status_display }}
+                            </span>
+                        </div>
+                        <small style="color: #666;">{{ class.created_at|date:"d.m.Y" }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: #666; margin-bottom: 20px;">Вы еще не создали классы</p>
+            {% endif %}
+
+            <a href="{% url 'create_class' %}" class="btn" style="background: #cb5603; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; display: inline-block; margin-top: 10px;">
+                ➕ Добавить класс
+            </a>
+        </div>
+
+        <!-- События -->
+        <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+            <h2 style="color: #cb5603; margin-bottom: 20px;">📝 Мои события ({{ user_events.count }})</h2>
+
+            {% if user_events %}
+                {% for event in user_events %}
+                <div style="padding: 15px; background: #f8f9fa; border-radius: 5px; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>{{ event.title }}</strong>
+                            <span style="color: #666; font-size: 12px; margin-left: 10px;">
+                                ({{ event.school_class.class_name }} - {{ event.school_class.year_album.year }})
+                            </span>
+                            <span style="color: {% if event.status == 'approved' %}#28a745{% elif event.status == 'rejected' %}#dc3545{% else %}#ffc107{% endif %}; font-size: 12px; margin-left: 10px;">
+                                {{ event.get_status_display }}
+                            </span>
+                        </div>
+                        <small style="color: #666;">{{ event.created_at|date:"d.m.Y" }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: #666; margin-bottom: 20px;">Вы еще не создали события</p>
+            {% endif %}
+
+            <a href="{% url 'create_event' %}" class="btn" style="background: #cb5603; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; display: inline-block; margin-top: 10px;">
                 ➕ Добавить событие
             </a>
         </div>
-    </div>
-    
-    <!-- Мои фото -->
-    <div class="card" style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
-        <h3 style="color: #cb5603; margin-bottom: 20px;">Мои фото ({{ user_photos.count }})</h3>
-        {% if user_photos %}
-            <ul style="list-style: none; padding: 0;">
-            {% for photo in user_photos %}
-                <li style="padding: 10px; border-bottom: 1px solid #eee;">
-                    Фото #{{ photo.id }}
-                    <br>
-                    <small>Событие: {{ photo.event_album.title }}</small>
-                    <span style="float: right; 
-                                color: {% if photo.status == 'approved' %}#28a745{% elif photo.status == 'pending' %}#856404{% else %}#721c24{% endif %};
-                                background: {% if photo.status == 'approved' %}#d4edda{% elif photo.status == 'pending' %}#fff3cd{% else %}#f8d7da{% endif %};
-                                padding: 2px 8px; border-radius: 12px; font-size: 12px;">
-                        {% if photo.status == 'approved' %}✅ Одобрено
-                        {% elif photo.status == 'pending' %}⏳ На модерации
-                        {% else %}❌ Отклонено{% endif %}
-                    </span>
-                </li>
-            {% endfor %}
-            </ul>
-        {% else %}
-            <p style="color: #666;">Вы еще не загрузили фото</p>
-        {% endif %}
-        <!-- УВЕЛИЧЕННЫЙ ОТСТУП -->
-        <div style="margin-top: 25px;">
-            <a href="{% url 'upload_photo' %}" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; display: inline-block; width: 100%; text-align: center;">
+
+        <!-- Фото -->
+        <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+            <h2 style="color: #cb5603; margin-bottom: 20px;">📷 Мои фото ({{ user_photos.count }})</h2>
+
+            {% if user_photos %}
+                {% for photo in user_photos %}
+                <div style="padding: 15px; background: #f8f9fa; border-radius: 5px; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>Фото {{ photo.id }}</strong>
+                            <span style="color: #666; font-size: 12px; margin-left: 10px;">
+                                ({{ photo.event_album.title }})
+                            </span>
+                            <span style="color: {% if photo.status == 'approved' %}#28a745{% elif photo.status == 'rejected' %}#dc3545{% else %}#ffc107{% endif %}; font-size: 12px; margin-left: 10px;">
+                                {{ photo.get_status_display }}
+                            </span>
+                        </div>
+                        <small style="color: #666;">{{ photo.uploaded_at|date:"d.m.Y" }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: #666; margin-bottom: 20px;">Вы еще не загрузили фото</p>
+            {% endif %}
+
+            <a href="{% url 'upload_photo' %}" class="btn" style="background: #cb5603; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; display: inline-block; margin-top: 10px;">
                 ➕ Загрузить фото
             </a>
         </div>
     </div>
-</div>
 
-<!-- Информация о модерации -->
-<div style="background: #e7f3ff; padding: 20px; border-radius: 8px; margin-top: 40px; border-left: 4px solid #007bff;">
-    <h4 style="color: #007bff; margin-bottom: 10px;">💡 Информация о модерации</h4>
-    <p style="margin: 0; color: #0056b3;">
-        • <strong>Одобрено</strong> - контент виден всем пользователям<br>
-        • <strong>На модерации</strong> - ожидает проверки администратором<br>
-        • <strong>Отклонено</strong> - контент не прошел модерацию
-    </p>
+    <!-- Информация о модерации -->
+    <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+        <h3 style="color: #333; margin-bottom: 20px;">ℹ️ Информация о модерации</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+            <div style="text-align: center;">
+                <div style="color: #28a745; font-size: 24px; margin-bottom: 10px;">✅</div>
+                <strong>Одобрено</strong>
+                <p style="color: #666; font-size: 14px; margin: 5px 0 0 0;">контент виден всем пользователям</p>
+            </div>
+            <div style="text-align: center;">
+                <div style="color: #ffc107; font-size: 24px; margin-bottom: 10px;">⏳</div>
+                <strong>На модерации</strong>
+                <p style="color: #666; font-size: 14px; margin: 5px 0 0 0;">ожидает проверки администратором</p>
+            </div>
+            <div style="text-align: center;">
+                <div style="color: #dc3545; font-size: 24px; margin-bottom: 10px;">❌</div>
+                <strong>Отклонено</strong>
+                <p style="color: #666; font-size: 14px; margin: 5px 0 0 0;">контент не прошел модерацию</p>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

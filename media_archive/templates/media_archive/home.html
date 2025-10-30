@@ -24,7 +24,7 @@
                  style="cursor: pointer;">
                 <div class="year-title">{{ year.year }}</div>
                 <div style="margin-top: 10px; font-size: 14px; color: #666;">
-                    {{ year.events.count }} событий
+                    {{ year.classes.count }} классов
                 </div>
             </div>
             {% endfor %}
@@ -248,7 +248,7 @@
                     card.innerHTML = `
                         <div class="year-title">${year.year}</div>
                         <div style="margin-top: 10px; font-size: 14px; color: #666;">
-                            ${year.events_count || 0} событий
+                            ${year.classes_count || 0} классов
                         </div>
                     `;
                     row.appendChild(card);

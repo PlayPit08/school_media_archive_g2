@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Добавить класс - Фотоархив школы №2086{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Добавить класс</h1>
+
+<div style="max-width: 500px; margin: 0 auto;">
+    <div class="card" style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            <div style="margin-bottom: 20px;">
+                <label for="id_class_name" style="display: block; margin-bottom: 8px; font-weight: 500;">Название класса:</label>
+                <input type="text" name="class_name" id="id_class_name" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Например: 1А, 5Б, 10В">
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label for="id_year_album" style="display: block; margin-bottom: 8px; font-weight: 500;">Учебный год:</label>
+                <select name="year_album" id="id_year_album" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="">Выберите учебный год</option>
+                    {% for year in form.year_album.field.queryset %}
+                        <option value="{{ year.id }}">{{ year.year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; width: 100%;">
+                Создать класс
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{% url 'profile' %}" style="color: #cb5603;">Вернуться в профиль</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

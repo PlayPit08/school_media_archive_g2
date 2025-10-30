@@ -9,7 +9,7 @@
     <div class="card" style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
         <form method="post">
             {% csrf_token %}
-            
+            <input type="hidden" name="next" value="{{ next }}">
             <div style="margin-bottom: 20px;">
                 <label for="id_year" style="display: block; margin-bottom: 8px; font-weight: 500;">Учебный год:</label>
                 <input type="text" name="year" id="id_year" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Например: 2023-2024">

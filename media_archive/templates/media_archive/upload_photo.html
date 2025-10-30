@@ -1,38 +1,104 @@
 {% extends 'base.html' %}
 
-{% block title %}Загрузить фото - Фотоархив школы №2086{% endblock %}
+{% block title %}Загрузка фото - Фотоархив школы №2086{% endblock %}
 
 {% block content %}
-<h1 class="page-title">Загрузить фото</h1>
+<div style="max-width: 600px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1 class="page-title" style="margin-bottom: 0;">Загрузка фотографии</h1>
+        <a href="{% url 'profile' %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+            ← Назад
+        </a>
+    </div>
 
-<div style="max-width: 500px; margin: 0 auto;">
-    <div class="card" style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
-        <form method="post" enctype="multipart/form-data">
+    <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+        <form method="post" enctype="multipart/form-data" id="uploadForm">
             {% csrf_token %}
-            
+            <input type="hidden" name="next" value="{{ next }}">
             <div style="margin-bottom: 20px;">
-                <label for="id_event_album" style="display: block; margin-bottom: 8px; font-weight: 500;">Событие:</label>
-                <select name="event_album" id="id_event_album" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                    <option value="">Выберите событие</option>
-                    {% for event in form.event_album.field.queryset %}
-                        <option value="{{ event.id }}">{{ event.title }} ({{ event.year_album.year }})</option>
-                    {% endfor %}
-                </select>
+                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                    Выберите событие:
+                </label>
+                {{ form.event_album }}
+                {% if form.event_album.errors %}
+                <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
+                    {{ form.event_album.errors }}
+                </div>
+                {% endif %}
             </div>
-            
+
             <div style="margin-bottom: 20px;">
-                <label for="id_image" style="display: block; margin-bottom: 8px; font-weight: 500;">Фото:</label>
-                <input type="file" name="image" id="id_image" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" accept="image/*">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                    Выберите фотографию:
+                </label>
+                <input type="file" name="image" id="imageInput" accept="image/*"
+                       style="display: none;" onchange="previewImage(this)">
+                <label for="imageInput" style="display: inline-block; background: #f8f9fa; padding: 12px 20px; border: 2px dashed #dee2e6; border-radius: 6px; cursor: pointer; text-align: center; width: 100%;">
+                    <div style="font-size: 48px; margin-bottom: 10px;">📷</div>
+                    <div style="color: #666;">Нажмите для выбора файла</div>
+                    <div style="color: #999; font-size: 12px; margin-top: 5px;">Поддерживаются: JPG, PNG, GIF</div>
+                </label>
+                {% if form.image.errors %}
+                <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
+                    {{ form.image.errors }}
+                </div>
+                {% endif %}
             </div>
-            
-            <button type="submit" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; width: 100%;">
-                Загрузить фото
+
+            <!-- Превью фотографии -->
+            <div id="imagePreview" style="display: none; margin-bottom: 20px; text-align: center;">
+                <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px; color: #333;">Предпросмотр:</div>
+                <img id="preview" src="" alt="Превью"
+                     style="max-width: 100%; max-height: 300px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <div style="margin-top: 10px;">
+                    <button type="button" onclick="clearImage()"
+                            style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                        ❌ Удалить превью
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" style="background: #cb5603; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%;">
+                📤 Загрузить фотографию
             </button>
         </form>
-        
-        <div style="text-align: center; margin-top: 20px;">
-            <a href="{% url 'profile' %}" style="color: #cb5603;">Вернуться в профиль</a>
-        </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewImage(input) {
+    const preview = document.getElementById('preview');
+    const previewContainer = document.getElementById('imagePreview');
+
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            previewContainer.style.display = 'block';
+        }
+
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function clearImage() {
+    const input = document.getElementById('imageInput');
+    const previewContainer = document.getElementById('imagePreview');
+
+    input.value = '';
+    previewContainer.style.display = 'none';
+}
+
+// Показываем ошибки формы
+{% if form.errors %}
+document.addEventListener('DOMContentLoaded', function() {
+    {% if form.image.errors %}
+    alert('Пожалуйста, выберите фотографию для загрузки.');
+    {% endif %}
+});
+{% endif %}
+</script>
 {% endblock %}

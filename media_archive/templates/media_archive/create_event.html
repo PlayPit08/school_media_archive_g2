@@ -1,38 +1,71 @@
 {% extends 'base.html' %}
 
-{% block title %}Добавить событие - Фотоархив школы №2086{% endblock %}
+{% block title %}Создание события - Фотоархив школы №2086{% endblock %}
 
 {% block content %}
-<h1 class="page-title">Добавить событие</h1>
+<div style="max-width: 600px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1 class="page-title" style="margin-bottom: 0;">
+            {% if predefined_class %}
+            Новое событие для {{ school_class.class_name }}
+            {% elif predefined_year %}
+            Новое событие для {{ year.year }} года
+            {% else %}
+            Создание события
+            {% endif %}
+        </h1>
+        <a href="{% if predefined_class %}{% url 'class_detail' school_class.id %}{% elif predefined_year %}{% url 'year_detail' year.id %}{% else %}{% url 'profile' %}{% endif %}"
+           class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+            ← Назад
+        </a>
+    </div>
 
-<div style="max-width: 500px; margin: 0 auto;">
-    <div class="card" style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
-        <form method="post">
+    <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            
-            <div style="margin-bottom: 20px;">
-                <label for="id_title" style="display: block; margin-bottom: 8px; font-weight: 500;">Название события:</label>
-                <input type="text" name="title" id="id_title" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Например: Выпускной вечер">
+            <input type="hidden" name="next" value="{{ next }}">
+            {% if predefined_class %}
+            <input type="hidden" name="school_class" value="{{ school_class.id }}">
+            <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                <strong>Класс:</strong> {{ school_class.class_name }} ({{ school_class.year_album.year }})
             </div>
-            
+            {% endif %}
+
             <div style="margin-bottom: 20px;">
-                <label for="id_year_album" style="display: block; margin-bottom: 8px; font-weight: 500;">Учебный год:</label>
-                <select name="year_album" id="id_year_album" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                    <option value="">Выберите учебный год</option>
-                    {% for year in form.year_album.field.queryset %}
-                        <option value="{{ year.id }}">{{ year.year }}</option>
-                    {% endfor %}
-                </select>
+                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                    Название события:
+                </label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
+                    {{ form.title.errors }}
+                </div>
+                {% endif %}
             </div>
-            
-            <button type="submit" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; width: 100%;">
+
+            {% if not predefined_class %}
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                    Выберите класс:
+                </label>
+                {{ form.school_class }}
+                {% if form.school_class.errors %}
+                <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
+                    {{ form.school_class.errors }}
+                </div>
+                {% endif %}
+                {% if predefined_year %}
+                <div style="font-size: 14px; color: #666; margin-top: 5px;">
+                    Показаны только классы {{ year.year }} года
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <button type="submit" style="background: #cb5603; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%;">
                 Создать событие
             </button>
         </form>
-        
-        <div style="text-align: center; margin-top: 20px;">
-            <a href="{% url 'profile' %}" style="color: #cb5603;">Вернуться в профиль</a>
-        </div>
     </div>
 </div>
 {% endblock %}

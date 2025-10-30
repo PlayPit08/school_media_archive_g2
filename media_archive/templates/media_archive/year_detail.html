@@ -3,41 +3,41 @@
 {% block title %}{{ year.year }} - Фотоархив школы №2086{% endblock %}
 
 {% block content %}
-<div style="display: flex; justify-content: between; align-items: center; margin-bottom: 30px;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
     <h1 class="page-title" style="margin-bottom: 0;">{{ year.year }} учебный год</h1>
     <a href="{% url 'home' %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
         ← Назад
     </a>
 </div>
 
-{% if events %}
-<div class="events-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px;">
-    {% for event in events %}
-    <div class="event-card" style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s ease;"
-         onclick="location.href='{% url 'event_detail' event.id %}'">
-        <h3 style="color: #cb5603; margin-bottom: 15px;">{{ event.title }}</h3>
-        
+{% if classes %}
+<div class="classes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px;">
+    {% for class in classes %}
+    <div class="class-card" style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s ease;"
+         onclick="location.href='{% url 'class_detail' class.id %}'">
+        <h3 style="color: #cb5603; margin-bottom: 15px;">{{ class.class_name }}</h3>
+
         <div style="margin-bottom: 15px;">
             <span style="color: #666; font-size: 14px;">
-                📸 {{ event.approved_photos_count }} фото
+                📅 {{ class.approved_events_count }} событий
             </span>
         </div>
-        
+
         <div style="color: #888; font-size: 13px;">
-            Создано: {{ event.created_by.username }}<br>
-            {{ event.created_at|date:"d.m.Y" }}
+            Создано: {{ class.created_by.username }}<br>
+            {{ class.created_at|date:"d.m.Y" }}
         </div>
     </div>
     {% endfor %}
 </div>
 {% else %}
 <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
-    <div style="font-size: 48px; margin-bottom: 20px;">📁</div>
-    <h3 style="color: #666; margin-bottom: 15px;">Пока нет событий</h3>
-    <p style="color: #888; margin-bottom: 25px;">События для этого учебного года еще не добавлены</p>
+    <div style="font-size: 48px; margin-bottom: 20px;">🏫</div>
+    <h3 style="color: #666; margin-bottom: 15px;">Пока нет классов</h3>
+    <p style="color: #888; margin-bottom: 25px;">Классы для этого учебного года еще не добавлены или не одобрены</p>
     {% if user.is_authenticated %}
-    <a href="{% url 'create_event' %}" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none;">
-        ➕ Добавить первое событие
+    <a href="{% url 'create_class' %}" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none;">
+        ➕ Добавить первый класс
     </a>
     {% endif %}
 </div>
