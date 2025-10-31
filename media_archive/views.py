@@ -236,6 +236,37 @@ def upload_photo(request):
         'next': request.META.get('HTTP_REFERER', 'profile')
     })
 
+# Создание класса для года (с предвыбором)
+@login_required
+def create_class_for_year(request, year_id):
+    year = get_object_or_404(YearAlbum, id=year_id, status='approved')
+
+    if request.method == 'POST':
+        form = SchoolClassForm(request.POST)
+        if form.is_valid():
+            school_class = form.save(commit=False)
+            school_class.created_by = request.user
+            school_class.year_album = year  # Автоматически устанавливаем год
+
+            if request.user.is_staff or request.user.is_superuser:
+                school_class.status = 'approved'
+                messages.success(request, f'Класс {school_class.class_name} создан и опубликован!')
+            else:
+                school_class.status = 'pending'
+                messages.success(request, f'Класс {school_class.class_name} создан и отправлен на модерацию!')
+
+            school_class.save()
+            return redirect('year_detail', year_id=year_id)
+    else:
+        form = SchoolClassForm(initial={'year_album': year})
+        form.fields['year_album'].widget = forms.HiddenInput()  # Скрываем поле выбора
+
+    return render(request, 'media_archive/create_class.html', {
+        'form': form,
+        'year': year,
+        'predefined_year': True  # Важно: передаем флаг что год предопределен
+    })
+
 # Создание события для класса (с предвыбором)
 @login_required
 def create_event_for_class(request, class_id):
@@ -246,7 +277,7 @@ def create_event_for_class(request, class_id):
         if form.is_valid():
             event = form.save(commit=False)
             event.created_by = request.user
-            event.school_class = school_class
+            event.school_class = school_class  # Автоматически устанавливаем класс
 
             if request.user.is_staff or request.user.is_superuser:
                 event.status = 'approved'
@@ -259,12 +290,12 @@ def create_event_for_class(request, class_id):
             return redirect('class_detail', class_id=class_id)
     else:
         form = EventAlbumForm(initial={'school_class': school_class})
-        form.fields['school_class'].widget = forms.HiddenInput()
+        form.fields['school_class'].widget = forms.HiddenInput()  # Скрываем поле выбора
 
     return render(request, 'media_archive/create_event.html', {
         'form': form,
         'school_class': school_class,
-        'predefined_class': True
+        'predefined_class': True  # Важно: передаем флаг что класс предопределен
     })
 
 # Создание события для года (с предвыбором)
@@ -297,6 +328,71 @@ def create_event_for_year(request, year_id):
         'form': form,
         'year': year,
         'predefined_year': True
+    })
+
+# Загрузка фото для события (с предвыбором)
+@login_required
+def upload_photo_for_event(request, event_id):
+    event = get_object_or_404(EventAlbum, id=event_id, status='approved')
+
+    if request.method == 'POST':
+        form = PhotoUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            photo = form.save(commit=False)
+            photo.uploaded_by = request.user
+            photo.event_album = event  # Автоматически устанавливаем событие
+
+            if request.user.is_staff or request.user.is_superuser:
+                photo.status = 'approved'
+                messages.success(request, 'Фото загружено и опубликовано!')
+            else:
+                photo.status = 'pending'
+                messages.success(request, 'Фото загружено и отправлено на модерацию!')
+
+            photo.save()
+            return redirect('event_detail', event_id=event_id)
+    else:
+        # Создаем форму с предвыбранным событием
+        form = PhotoUploadForm(initial={'event_album': event})
+        # Скрываем поле выбора события
+        form.fields['event_album'].widget = forms.HiddenInput()
+
+    return render(request, 'media_archive/upload_photo.html', {
+        'form': form,
+        'event': event,
+        'predefined_event': True  # Передаем флаг что событие предопределено
+    })
+
+# Загрузка фото для класса (с предвыбором)
+@login_required
+def upload_photo_for_class(request, class_id):
+    school_class = get_object_or_404(SchoolClass, id=class_id, status='approved')
+    events = school_class.events.filter(status='approved')
+
+    if request.method == 'POST':
+        form = PhotoUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            photo = form.save(commit=False)
+            photo.uploaded_by = request.user
+
+            if request.user.is_staff or request.user.is_superuser:
+                photo.status = 'approved'
+                messages.success(request, 'Фото загружено и опубликовано!')
+            else:
+                photo.status = 'pending'
+                messages.success(request, 'Фото загружено и отправлено на модерацию!')
+
+            photo.save()
+            return redirect('class_detail', class_id=class_id)
+    else:
+        form = PhotoUploadForm()
+        # Ограничиваем выбор только событиями этого класса
+        form.fields['event_album'].queryset = events
+
+    return render(request, 'media_archive/upload_photo.html', {
+        'form': form,
+        'school_class': school_class,
+        'predefined_class': True
     })
 
 # Аутентификация

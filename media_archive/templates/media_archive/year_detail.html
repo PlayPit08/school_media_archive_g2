@@ -3,11 +3,19 @@
 {% block title %}{{ year.year }} - Фотоархив школы №2086{% endblock %}
 
 {% block content %}
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-    <h1 class="page-title" style="margin-bottom: 0;">{{ year.year }} учебный год</h1>
-    <a href="{% url 'home' %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
-        ← Назад
-    </a>
+<div style="margin-bottom: 30px;">
+    <nav style="margin-bottom: 15px; font-size: 14px; color: #666;">
+        <a href="{% url 'home' %}" style="color: #cb5603; text-decoration: none;">Главная</a>
+        &nbsp;→&nbsp;
+        <span>{{ year.year }}</span>
+    </nav>
+
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1 class="page-title" style="margin-bottom: 0;">{{ year.year }} учебный год</h1>
+        <a href="{% url 'home' %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+            ← Назад
+        </a>
+    </div>
 </div>
 
 {% if classes %}
@@ -36,7 +44,7 @@
     <h3 style="color: #666; margin-bottom: 15px;">Пока нет классов</h3>
     <p style="color: #888; margin-bottom: 25px;">Классы для этого учебного года еще не добавлены или не одобрены</p>
     {% if user.is_authenticated %}
-    <a href="{% url 'create_class' %}" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none;">
+    <a href="{% url 'create_class_for_year' year.id %}" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none;">
         ➕ Добавить первый класс
     </a>
     {% endif %}

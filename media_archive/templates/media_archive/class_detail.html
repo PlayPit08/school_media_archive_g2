@@ -3,14 +3,24 @@
 {% block title %}{{ school_class.class_name }} - {{ school_class.year_album.year }}{% endblock %}
 
 {% block content %}
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-    <div>
-        <h1 class="page-title" style="margin-bottom: 5px;">{{ school_class.class_name }}</h1>
-        <p style="color: #666; margin: 0;">{{ school_class.year_album.year }} учебный год</p>
+<div style="margin-bottom: 30px;">
+    <nav style="margin-bottom: 15px; font-size: 14px; color: #666;">
+        <a href="{% url 'home' %}" style="color: #cb5603; text-decoration: none;">Главная</a>
+        &nbsp;→&nbsp;
+        <a href="{% url 'year_detail' school_class.year_album.id %}" style="color: #cb5603; text-decoration: none;">{{ school_class.year_album.year }}</a>
+        &nbsp;→&nbsp;
+        <span>{{ school_class.class_name }}</span>
+    </nav>
+
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 class="page-title" style="margin-bottom: 5px;">{{ school_class.class_name }}</h1>
+            <p style="color: #666; margin: 0;">{{ school_class.year_album.year }} учебный год</p>
+        </div>
+        <a href="{% url 'year_detail' school_class.year_album.id %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+            ← Назад к году
+        </a>
     </div>
-    <a href="{% url 'year_detail' school_class.year_album.id %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
-        ← Назад к году
-    </a>
 </div>
 
 {% if events %}

@@ -1,38 +1,129 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}Добавить класс - Фотоархив школы №2086{% endblock %}
+{% block title %}Создание класса - Фотоархив школы №2086{% endblock %}
 
 {% block content %}
-<h1 class="page-title">Добавить класс</h1>
+<div style="max-width: 600px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1 class="page-title" style="margin-bottom: 0;">Создание класса</h1>
+        {% if predefined_year %}
+        <a href="{% url 'year_detail' year.id %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+            ← Назад к году
+        </a>
+        {% else %}
+        <a href="{% url 'profile' %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+            ← Назад
+        </a>
+        {% endif %}
+    </div>
 
-<div style="max-width: 500px; margin: 0 auto;">
-    <div class="card" style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
-        <form method="post">
+    <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+        <form method="post" id="createClassForm">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ next }}">
-            <div style="margin-bottom: 20px;">
-                <label for="id_class_name" style="display: block; margin-bottom: 8px; font-weight: 500;">Название класса:</label>
-                <input type="text" name="class_name" id="id_class_name" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Например: 1А, 5Б, 10В">
+
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                    <div class="alert alert-error" style="margin-bottom: 20px;">
+                        {{ message }}
+                    </div>
+                    {% endif %}
+                {% endfor %}
             </div>
+            {% endif %}
 
             <div style="margin-bottom: 20px;">
-                <label for="id_year_album" style="display: block; margin-bottom: 8px; font-weight: 500;">Учебный год:</label>
-                <select name="year_album" id="id_year_album" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                    <option value="">Выберите учебный год</option>
-                    {% for year in form.year_album.field.queryset %}
-                        <option value="{{ year.id }}">{{ year.year }}</option>
-                    {% endfor %}
-                </select>
+                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                    Название класса:
+                </label>
+                {{ form.class_name }}
+                {% if form.class_name.errors %}
+                <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
+                    {{ form.class_name.errors }}
+                </div>
+                {% endif %}
+                <div style="color: #666; font-size: 12px; margin-top: 5px;">
+                    Например: 5А, 10Б
+                </div>
             </div>
 
-            <button type="submit" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; width: 100%;">
-                Создать класс
+            <!-- Поле выбора года (только если не предопределен) -->
+            {% if not predefined_year %}
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                    Учебный год:
+                </label>
+                {{ form.year_album }}
+                {% if form.year_album.errors %}
+                <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
+                    {{ form.year_album.errors }}
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <!-- Скрытое поле для предопределенного года -->
+            {{ form.year_album }}
+            {% endif %}
+
+            <button type="button" onclick="confirmCreateClass()" style="background: #cb5603; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; transition: all 0.3s;">
+                📝 Создать класс
             </button>
-        </form>
 
-        <div style="text-align: center; margin-top: 20px;">
-            <a href="{% url 'profile' %}" style="color: #cb5603;">Вернуться в профиль</a>
-        </div>
+            <!-- Информация о том, где создается класс (простой текст) -->
+            {% if predefined_year %}
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; text-align: center; color: #666; font-size: 14px;">
+                Создается для учебного года: <strong>{{ year.year }}</strong>
+            </div>
+            {% endif %}
+        </form>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmCreateClass() {
+    const classNameInput = document.querySelector('#id_class_name');
+    const yearSelect = document.querySelector('#id_year_album');
+    const className = classNameInput.value.trim();
+
+    // Определяем текст года в зависимости от контекста
+    let yearText;
+    {% if predefined_year %}
+        yearText = "{{ year.year }}";
+    {% else %}
+        if (yearSelect.value === '') {
+            showConfirmationModal(
+                'Ошибка',
+                'Пожалуйста, выберите учебный год',
+                '❌',
+                null
+            );
+            return;
+        }
+        yearText = yearSelect.options[yearSelect.selectedIndex].text;
+    {% endif %}
+
+    if (!className) {
+        showConfirmationModal(
+            'Ошибка',
+            'Пожалуйста, введите название класса',
+            '❌',
+            null
+        );
+        return;
+    }
+
+    showConfirmationModal(
+        'Создание класса',
+        `Вы уверены, что хотите создать класс "${className}" для учебного года "${yearText}"?\n\nПосле создания класс будет отправлен на модерацию.`,
+        '📝',
+        function() {
+            document.getElementById('createClassForm').submit();
+        }
+    );
+}
+</script>
 {% endblock %}

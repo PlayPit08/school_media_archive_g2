@@ -6,15 +6,36 @@
 <div style="max-width: 600px; margin: 0 auto;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <h1 class="page-title" style="margin-bottom: 0;">Загрузка фотографии</h1>
+        {% if predefined_event %}
+        <a href="{% url 'event_detail' event.id %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+            ← Назад к событию
+        </a>
+        {% else %}
         <a href="{% url 'profile' %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
             ← Назад
         </a>
+        {% endif %}
     </div>
 
     <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
         <form method="post" enctype="multipart/form-data" id="uploadForm">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ next }}">
+
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                    <div class="alert alert-error" style="margin-bottom: 20px;">
+                        {{ message }}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Поле выбора события (только если не предопределено) -->
+            {% if not predefined_event %}
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
                     Выберите событие:
@@ -26,6 +47,10 @@
                 </div>
                 {% endif %}
             </div>
+            {% else %}
+            <!-- Скрытое поле для предопределенного события -->
+            {{ form.event_album }}
+            {% endif %}
 
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
@@ -33,7 +58,7 @@
                 </label>
                 <input type="file" name="image" id="imageInput" accept="image/*"
                        style="display: none;" onchange="previewImage(this)">
-                <label for="imageInput" style="display: inline-block; background: #f8f9fa; padding: 12px 20px; border: 2px dashed #dee2e6; border-radius: 6px; cursor: pointer; text-align: center; width: 100%;">
+                <label for="imageInput" style="display: inline-block; background: #f8f9fa; padding: 12px 20px; border: 2px dashed #dee2e6; border-radius: 6px; cursor: pointer; text-align: center; width: 100%; transition: all 0.3s;">
                     <div style="font-size: 48px; margin-bottom: 10px;">📷</div>
                     <div style="color: #666;">Нажмите для выбора файла</div>
                     <div style="color: #999; font-size: 12px; margin-top: 5px;">Поддерживаются: JPG, PNG, GIF</div>
@@ -52,15 +77,24 @@
                      style="max-width: 100%; max-height: 300px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                 <div style="margin-top: 10px;">
                     <button type="button" onclick="clearImage()"
-                            style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                            style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; transition: all 0.3s;">
                         ❌ Удалить превью
                     </button>
                 </div>
             </div>
 
-            <button type="submit" style="background: #cb5603; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%;">
+            <button type="button" onclick="confirmUploadPhoto()" style="background: #cb5603; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; transition: all 0.3s;">
                 📤 Загрузить фотографию
             </button>
+
+            <!-- Информация о том, куда загружается фото (простой текст) -->
+            {% if predefined_event %}
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; text-align: center; color: #666; font-size: 14px;">
+                Загружается в событие: <strong>{{ event.title }}</strong> •
+                Класс: <strong>{{ event.school_class.class_name }}</strong> •
+                Год: <strong>{{ event.school_class.year_album.year }}</strong>
+            </div>
+            {% endif %}
         </form>
     </div>
 </div>
@@ -92,11 +126,60 @@ function clearImage() {
     previewContainer.style.display = 'none';
 }
 
+function confirmUploadPhoto() {
+    const eventSelect = document.querySelector('#id_event_album');
+    const fileInput = document.querySelector('#imageInput');
+
+    // Определяем текст события в зависимости от контекста
+    let eventText;
+    {% if predefined_event %}
+        eventText = "{{ event.title }} ({{ event.school_class.class_name }})";
+    {% else %}
+        if (eventSelect.value === '') {
+            showConfirmationModal(
+                'Ошибка',
+                'Пожалуйста, выберите событие',
+                '❌',
+                null
+            );
+            return;
+        }
+        eventText = eventSelect.options[eventSelect.selectedIndex].text;
+    {% endif %}
+
+    if (!fileInput.files || !fileInput.files[0]) {
+        showConfirmationModal(
+            'Ошибка',
+            'Пожалуйста, выберите фотографию для загрузки',
+            '❌',
+            null
+        );
+        return;
+    }
+
+    const fileName = fileInput.files[0].name;
+    const fileSize = (fileInput.files[0].size / 1024 / 1024).toFixed(2);
+
+    showConfirmationModal(
+        'Загрузка фотографии',
+        `Вы уверены, что хотите загрузить фотографию "${fileName}" (${fileSize} МБ) в событие "${eventText}"?\n\nПосле загрузки фото будет отправлено на модерацию.`,
+        '📷',
+        function() {
+            document.getElementById('uploadForm').submit();
+        }
+    );
+}
+
 // Показываем ошибки формы
 {% if form.errors %}
 document.addEventListener('DOMContentLoaded', function() {
     {% if form.image.errors %}
-    alert('Пожалуйста, выберите фотографию для загрузки.');
+    showConfirmationModal(
+        'Ошибка',
+        'Пожалуйста, выберите фотографию для загрузки.',
+        '❌',
+        null
+    );
     {% endif %}
 });
 {% endif %}

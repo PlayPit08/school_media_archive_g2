@@ -3,26 +3,29 @@
 {% block title %}{{ event.title }} - Фотоархив школы №2086{% endblock %}
 
 {% block content %}
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-    <div>
-        <nav style="margin-bottom: 10px; font-size: 14px; color: #666;">
-            <a href="{% url 'home' %}" style="color: #cb5603; text-decoration: none;">Главная</a>
-            &nbsp;→&nbsp;
-            <a href="{% url 'year_detail' event.school_class.year_album.id %}" style="color: #cb5603; text-decoration: none;">{{ event.school_class.year_album.year }}</a>
-            &nbsp;→&nbsp;
-            <a href="{% url 'class_detail' event.school_class.id %}" style="color: #cb5603; text-decoration: none;">{{ event.school_class.class_name }}</a>
-            &nbsp;→&nbsp;
-            <span>{{ event.title }}</span>
-        </nav>
-        <h1 class="page-title" style="margin-bottom: 0;">{{ event.title }}</h1>
-        <p style="color: #666; margin-top: 5px;">
-            Класс: {{ event.school_class.class_name }} •
-            Учебный год: {{ event.school_class.year_album.year }}
-        </p>
+<div style="margin-bottom: 30px;">
+    <nav style="margin-bottom: 15px; font-size: 14px; color: #666;">
+        <a href="{% url 'home' %}" style="color: #cb5603; text-decoration: none;">Главная</a>
+        &nbsp;→&nbsp;
+        <a href="{% url 'year_detail' event.school_class.year_album.id %}" style="color: #cb5603; text-decoration: none;">{{ event.school_class.year_album.year }}</a>
+        &nbsp;→&nbsp;
+        <a href="{% url 'class_detail' event.school_class.id %}" style="color: #cb5603; text-decoration: none;">{{ event.school_class.class_name }}</a>
+        &nbsp;→&nbsp;
+        <span>{{ event.title }}</span>
+    </nav>
+
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 class="page-title" style="margin-bottom: 0;">{{ event.title }}</h1>
+            <p style="color: #666; margin-top: 5px;">
+                Класс: {{ event.school_class.class_name }} •
+                Учебный год: {{ event.school_class.year_album.year }}
+            </p>
+        </div>
+        <a href="{% url 'class_detail' event.school_class.id %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+            ← Назад к классу
+        </a>
     </div>
-    <a href="{% url 'class_detail' event.school_class.id %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
-        ← Назад к классу
-    </a>
 </div>
 
 {% if photos %}
@@ -86,14 +89,15 @@
     <h3 style="color: #666; margin-bottom: 15px;">Пока нет фотографий</h3>
     <p style="color: #888; margin-bottom: 25px;">Фотографии для этого события еще не загружены</p>
     {% if user.is_authenticated %}
-    <a href="{% url 'upload_photo' %}?next={% url 'event_detail' event.id %}" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none;">
-        ➕ Загрузить первое фото
+    <a href="{% url 'upload_photo_for_event' event.id %}" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+        ➕ Добавить фото
     </a>
     {% endif %}
 </div>
 {% endif %}
 {% endblock %}
 
+<!-- Остальной код JavaScript остается без изменений -->
 {% block extra_js %}
 <script>
 // Функция для получения реальных размеров изображения
@@ -102,8 +106,8 @@ function getImageSize(src) {
         var img = new Image();
         img.onload = function() {
             resolve({
-                width: this.width,
-                height: this.height
+                width: this.naturalWidth,
+                height: this.naturalHeight
             });
         };
         img.onerror = reject;
@@ -126,18 +130,16 @@ var photoSwipeItems = [
 function openPhotoSwipe(index) {
     var pswpElement = document.querySelectorAll('.pswp')[0];
 
-    // Опции для PhotoSwipe - отключаем ненужные кнопки
+    // Опции для PhotoSwipe
     var options = {
         index: parseInt(index),
         bgOpacity: 0.9,
         showHideOpacity: true,
         closeOnScroll: false,
         history: false,
-        // Отключаем кнопки которые не нужны
-        shareEl: false, // Полностью убираем кнопку поделиться/скачать
+        shareEl: false,
         fullscreenEl: true,
         zoomEl: true,
-        // Настройки масштабирования
         maxSpreadZoom: 3,
         getDoubleTapZoom: function(isMouseClick, item) {
             return item.initialZoomLevel < 0.7 ? 1 : 1.5;
@@ -166,7 +168,7 @@ function openPhotoSwipe(index) {
         }
     });
 
-    // Добавляем горячую клавишу для скачивания (но без кнопки в интерфейсе)
+    // Добавляем горячую клавишу для скачивания
     gallery.listen('afterInit', function() {
         document.addEventListener('keydown', function(e) {
             if (e.key === 'd' || e.key === 'D') {
@@ -200,7 +202,7 @@ function openPhotoSwipe(index) {
     gallery.init();
 }
 
-// Функция для скачивания текущего изображения (работает по горячей клавише)
+// Функция для скачивания текущего изображения
 function downloadCurrentImage(gallery) {
     if (!gallery) return;
 
@@ -213,11 +215,10 @@ function downloadCurrentImage(gallery) {
     link.click();
     document.body.removeChild(link);
 
-    // Краткое уведомление
     showDownloadNotification(gallery);
 }
 
-// Функция для показа уведомления о скачивании
+// Функция для показа уведомления о скачивания
 function showDownloadNotification(gallery) {
     var counterEl = gallery.ui.element.querySelector('.pswp__counter');
     if (counterEl) {

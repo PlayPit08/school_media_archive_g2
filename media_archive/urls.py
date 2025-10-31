@@ -5,26 +5,31 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('search/', views.search_years, name='search_years'),
 
-    # Авторизация
-    path('login/', views.login_view, name='login'),
-    path('register/', views.register_view, name='register'),
-    path('logout/', views.logout_view, name='logout'),
-    path('profile/', views.profile, name='profile'),
-
-    # Просмотр контента
+    # Детальные страницы
     path('year/<int:year_id>/', views.year_detail, name='year_detail'),
     path('class/<int:class_id>/', views.class_detail, name='class_detail'),
     path('event/<int:event_id>/', views.event_detail, name='event_detail'),
 
-    # Создание контента
-    path('profile/create-year/', views.create_year, name='create_year'),
-    path('profile/create-class/', views.create_class, name='create_class'),
-    path('profile/create-event/', views.create_event, name='create_event'),
-    path('profile/upload-photo/', views.upload_photo, name='upload_photo'),
+    # Аутентификация
+    path('login/', views.login_view, name='login'),
+    path('register/', views.register_view, name='register'),
+    path('logout/', views.logout_view, name='logout'),
 
-    # Новые URL для создания событий с предвыбором
-    path('year/<int:year_id>/create-event/', views.create_event_for_year, name='create_event_for_year'),
+    # Личный кабинет и профиль
+    path('profile/', views.profile, name='profile'),
+
+    # Создание с предвыбором
+    path('year/<int:year_id>/create-class/', views.create_class_for_year, name='create_class_for_year'),
     path('class/<int:class_id>/create-event/', views.create_event_for_class, name='create_event_for_class'),
+    path('year/<int:year_id>/create-event/', views.create_event_for_year, name='create_event_for_year'),
+    path('event/<int:event_id>/upload-photo/', views.upload_photo_for_event, name='upload_photo_for_event'),
+    path('class/<int:class_id>/upload-photo/', views.upload_photo_for_class, name='upload_photo_for_class'),
+
+    # Обычное создание (без предвыбора)
+    path('create-year/', views.create_year, name='create_year'),
+    path('create-class/', views.create_class, name='create_class'),
+    path('create-event/', views.create_event, name='create_event'),
+    path('upload-photo/', views.upload_photo, name='upload_photo'),
 
     # Модерация
     path('moderation/', views.moderation_dashboard, name='moderation_dashboard'),

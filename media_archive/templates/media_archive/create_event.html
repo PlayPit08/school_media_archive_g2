@@ -1,33 +1,36 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block title %}Создание события - Фотоархив школы №2086{% endblock %}
 
 {% block content %}
 <div style="max-width: 600px; margin: 0 auto;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <h1 class="page-title" style="margin-bottom: 0;">
-            {% if predefined_class %}
-            Новое событие для {{ school_class.class_name }}
-            {% elif predefined_year %}
-            Новое событие для {{ year.year }} года
-            {% else %}
-            Создание события
-            {% endif %}
-        </h1>
-        <a href="{% if predefined_class %}{% url 'class_detail' school_class.id %}{% elif predefined_year %}{% url 'year_detail' year.id %}{% else %}{% url 'profile' %}{% endif %}"
-           class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+        <h1 class="page-title" style="margin-bottom: 0;">Создание события</h1>
+        {% if predefined_class %}
+        <a href="{% url 'class_detail' school_class.id %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+            ← Назад к классу
+        </a>
+        {% else %}
+        <a href="{% url 'profile' %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
             ← Назад
         </a>
+        {% endif %}
     </div>
 
     <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" id="createEventForm">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ next }}">
-            {% if predefined_class %}
-            <input type="hidden" name="school_class" value="{{ school_class.id }}">
-            <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
-                <strong>Класс:</strong> {{ school_class.class_name }} ({{ school_class.year_album.year }})
+
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                    <div class="alert alert-error" style="margin-bottom: 20px;">
+                        {{ message }}
+                    </div>
+                    {% endif %}
+                {% endfor %}
             </div>
             {% endif %}
 
@@ -41,12 +44,16 @@
                     {{ form.title.errors }}
                 </div>
                 {% endif %}
+                <div style="color: #666; font-size: 12px; margin-top: 5px;">
+                    Например: Первый звонок, Выпускной вечер
+                </div>
             </div>
 
+            <!-- Поле выбора класса (только если не предопределен) -->
             {% if not predefined_class %}
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
-                    Выберите класс:
+                    Класс:
                 </label>
                 {{ form.school_class }}
                 {% if form.school_class.errors %}
@@ -54,18 +61,70 @@
                     {{ form.school_class.errors }}
                 </div>
                 {% endif %}
-                {% if predefined_year %}
-                <div style="font-size: 14px; color: #666; margin-top: 5px;">
-                    Показаны только классы {{ year.year }} года
-                </div>
-                {% endif %}
             </div>
+            {% else %}
+            <!-- Скрытое поле для предопределенного класса -->
+            {{ form.school_class }}
             {% endif %}
 
-            <button type="submit" style="background: #cb5603; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%;">
-                Создать событие
+            <button type="button" onclick="confirmCreateEvent()" style="background: #cb5603; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; transition: all 0.3s;">
+                📝 Создать событие
             </button>
+
+            <!-- Информация о том, где создается событие (простой текст) -->
+            {% if predefined_class %}
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; text-align: center; color: #666; font-size: 14px;">
+                Создается для класса: <strong>{{ school_class.class_name }}</strong> •
+                Учебный год: <strong>{{ school_class.year_album.year }}</strong>
+            </div>
+            {% endif %}
         </form>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmCreateEvent() {
+    const eventTitleInput = document.querySelector('#id_title');
+    const classSelect = document.querySelector('#id_school_class');
+    const eventTitle = eventTitleInput.value.trim();
+
+    // Определяем текст класса в зависимости от контекста
+    let classText;
+    {% if predefined_class %}
+        classText = "{{ school_class.class_name }} ({{ school_class.year_album.year }})";
+    {% else %}
+        if (classSelect.value === '') {
+            showConfirmationModal(
+                'Ошибка',
+                'Пожалуйста, выберите класс',
+                '❌',
+                null
+            );
+            return;
+        }
+        classText = classSelect.options[classSelect.selectedIndex].text;
+    {% endif %}
+
+    if (!eventTitle) {
+        showConfirmationModal(
+            'Ошибка',
+            'Пожалуйста, введите название события',
+            '❌',
+            null
+        );
+        return;
+    }
+
+    showConfirmationModal(
+        'Создание события',
+        `Вы уверены, что хотите создать событие "${eventTitle}" для класса "${classText}"?\n\nПосле создания событие будет отправлено на модерацию.`,
+        '📝',
+        function() {
+            document.getElementById('createEventForm').submit();
+        }
+    );
+}
+</script>
 {% endblock %}

@@ -7,146 +7,436 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <h1 class="page-title" style="margin-bottom: 0;">Панель модерации</h1>
         <a href="{% url 'profile' %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
-            ← Назад в кабинет
+            ← В кабинет
         </a>
     </div>
 
-    <!-- Учебные годы на модерации -->
-    <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 30px;">
-        <h2 style="color: #333; margin-bottom: 20px;">Учебные годы на модерации ({{ pending_years.count }})</h2>
+    <!-- Статистика модерации -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); text-align: center;">
+            <div style="font-size: 24px; color: #ffc107; margin-bottom: 5px;">{{ pending_years.count }}</div>
+            <div style="color: #666; font-size: 14px;">Учебные годы на модерации</div>
+        </div>
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); text-align: center;">
+            <div style="font-size: 24px; color: #ffc107; margin-bottom: 5px;">{{ pending_classes.count }}</div>
+            <div style="color: #666; font-size: 14px;">Классы на модерации</div>
+        </div>
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); text-align: center;">
+            <div style="font-size: 24px; color: #ffc107; margin-bottom: 5px;">{{ pending_events.count }}</div>
+            <div style="color: #666; font-size: 14px;">События на модерации</div>
+        </div>
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); text-align: center;">
+            <div style="font-size: 24px; color: #ffc107; margin-bottom: 5px;">{{ pending_photos.count }}</div>
+            <div style="color: #666; font-size: 14px;">Фото на модерации</div>
+        </div>
+    </div>
 
-        {% if pending_years %}
-            {% for year in pending_years %}
-            <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <strong style="font-size: 18px;">{{ year.year }}</strong>
-                        <div style="color: #666; font-size: 14px; margin-top: 5px;">
-                            Создал: {{ year.created_by.username }} • {{ year.created_at|date:"d.m.Y H:i" }}
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 10px;">
-                        <a href="{% url 'approve_year' year.id %}" style="background: #28a745; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none;">
-                            Одобрить
-                        </a>
-                        <a href="{% url 'reject_year' year.id %}" style="background: #dc3545; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none;">
-                            Отклонить
-                        </a>
-                    </div>
+    <!-- Учебные годы на модерации -->
+    {% if pending_years %}
+    <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 30px;">
+        <h2 style="color: #cb5603; margin-bottom: 20px;">📅 Учебные годы на модерации</h2>
+        {% for year in pending_years %}
+        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: #333;">{{ year.year }}</h4>
+                    <p style="margin: 0; color: #666; font-size: 14px;">
+                        Создал: {{ year.created_by.username }} • {{ year.created_at|date:"d.m.Y H:i" }}
+                    </p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="confirmApprove('year', {{ year.id }}, '{{ year.year }}')"
+                            style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                        ✅ Одобрить
+                    </button>
+                    <button onclick="confirmReject('year', {{ year.id }}, '{{ year.year }}')"
+                            style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                        ❌ Отклонить
+                    </button>
                 </div>
             </div>
-            {% endfor %}
-        {% else %}
-            <div style="text-align: center; padding: 40px 20px; color: #666;">
-                <p>Нет учебных годов на модерации</p>
-            </div>
-        {% endif %}
+        </div>
+        {% endfor %}
     </div>
+    {% endif %}
 
     <!-- Классы на модерации -->
+    {% if pending_classes %}
     <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 30px;">
-        <h2 style="color: #333; margin-bottom: 20px;">Классы на модерации ({{ pending_classes.count }})</h2>
-
-        {% if pending_classes %}
-            {% for class in pending_classes %}
-            <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <strong style="font-size: 18px;">{{ class.class_name }}</strong>
-                        <div style="color: #666; font-size: 14px; margin-top: 5px;">
-                            Учебный год: {{ class.year_album.year }}<br>
-                            Создал: {{ class.created_by.username }} • {{ class.created_at|date:"d.m.Y H:i" }}
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 10px;">
-                        <a href="{% url 'approve_class' class.id %}" style="background: #28a745; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none;">
-                            Одобрить
-                        </a>
-                        <a href="{% url 'reject_class' class.id %}" style="background: #dc3545; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none;">
-                            Отклонить
-                        </a>
-                    </div>
+        <h2 style="color: #cb5603; margin-bottom: 20px;">🏫 Классы на модерации</h2>
+        {% for class in pending_classes %}
+        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: #333;">{{ class.class_name }}</h4>
+                    <p style="margin: 0; color: #666; font-size: 14px;">
+                        Учебный год: {{ class.year_album.year }} •
+                        Создал: {{ class.created_by.username }} • {{ class.created_at|date:"d.m.Y H:i" }}
+                    </p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="confirmApprove('class', {{ class.id }}, '{{ class.class_name }}')"
+                            style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                        ✅ Одобрить
+                    </button>
+                    <button onclick="confirmReject('class', {{ class.id }}, '{{ class.class_name }}')"
+                            style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                        ❌ Отклонить
+                    </button>
                 </div>
             </div>
-            {% endfor %}
-        {% else %}
-            <div style="text-align: center; padding: 40px 20px; color: #666;">
-                <p>Нет классов на модерации</p>
-            </div>
-        {% endif %}
+        </div>
+        {% endfor %}
     </div>
+    {% endif %}
 
     <!-- События на модерации -->
+    {% if pending_events %}
     <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 30px;">
-        <h2 style="color: #333; margin-bottom: 20px;">События на модерации ({{ pending_events.count }})</h2>
-
-        {% if pending_events %}
-            {% for event in pending_events %}
-            <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <strong style="font-size: 18px;">{{ event.title }}</strong>
-                        <div style="color: #666; font-size: 14px; margin-top: 5px;">
-                            Класс: {{ event.school_class.class_name }} ({{ event.school_class.year_album.year }})<br>
-                            Создал: {{ event.created_by.username }} • {{ event.created_at|date:"d.m.Y H:i" }}
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 10px;">
-                        <a href="{% url 'approve_event' event.id %}" style="background: #28a745; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none;">
-                            Одобрить
-                        </a>
-                        <a href="{% url 'reject_event' event.id %}" style="background: #dc3545; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none;">
-                            Отклонить
-                        </a>
-                    </div>
+        <h2 style="color: #cb5603; margin-bottom: 20px;">📝 События на модерации</h2>
+        {% for event in pending_events %}
+        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: #333;">{{ event.title }}</h4>
+                    <p style="margin: 0; color: #666; font-size: 14px;">
+                        Класс: {{ event.school_class.class_name }} •
+                        Учебный год: {{ event.school_class.year_album.year }} •
+                        Создал: {{ event.created_by.username }} • {{ event.created_at|date:"d.m.Y H:i" }}
+                    </p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="confirmApprove('event', {{ event.id }}, '{{ event.title }}')"
+                            style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                        ✅ Одобрить
+                    </button>
+                    <button onclick="confirmReject('event', {{ event.id }}, '{{ event.title }}')"
+                            style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                        ❌ Отклонить
+                    </button>
                 </div>
             </div>
-            {% endfor %}
-        {% else %}
-            <div style="text-align: center; padding: 40px 20px; color: #666;">
-                <p>Нет событий на модерации</p>
-            </div>
-        {% endif %}
+        </div>
+        {% endfor %}
     </div>
+    {% endif %}
 
     <!-- Фото на модерации -->
-    <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
-        <h2 style="color: #333; margin-bottom: 20px;">Фото на модерации ({{ pending_photos.count }})</h2>
-
-        {% if pending_photos %}
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
-                {% for photo in pending_photos %}
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                    <div style="text-align: center; margin-bottom: 15px;">
-                        {% if photo.image %}
-                            <img src="{{ photo.image.url }}"
-                                 alt="Фото {{ photo.id }}"
-                                 style="width: 100%; height: 150px; object-fit: cover; border-radius: 6px;">
-                        {% endif %}
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <div style="color: #666; font-size: 14px;">
-                            Событие: {{ photo.event_album.title }}<br>
-                            Загрузил: {{ photo.uploaded_by.username }}<br>
-                            {{ photo.uploaded_at|date:"d.m.Y H:i" }}
+    {% if pending_photos %}
+    <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 30px;">
+        <h2 style="color: #cb5603; margin-bottom: 20px;">📷 Фото на модерации</h2>
+        {% for photo in pending_photos %}
+        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    {% if photo.image %}
+                    <div style="position: relative;">
+                        <img src="{{ photo.image.url }}" alt="Фото {{ photo.id }}"
+                             style="width: 120px; height: 120px; object-fit: cover; border-radius: 6px; cursor: pointer; transition: all 0.3s ease;"
+                             onclick="openModerationPhoto({{ forloop.counter0 }})"
+                             onmouseover="this.style.transform='scale(1.05)'"
+                             onmouseout="this.style.transform='scale(1)'">
+                        <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px;">
+                            🔍 Просмотр
                         </div>
                     </div>
-                    <div style="display: flex; gap: 10px;">
-                        <a href="{% url 'approve_photo' photo.id %}" style="background: #28a745; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; font-size: 14px;">
-                            Одобрить
-                        </a>
-                        <a href="{% url 'reject_photo' photo.id %}" style="background: #dc3545; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; font-size: 14px;">
-                            Отклонить
-                        </a>
+                    {% endif %}
+                    <div>
+                        <h4 style="margin: 0 0 5px 0; color: #333;">Фото #{{ photo.id }}</h4>
+                        <p style="margin: 0; color: #666; font-size: 14px;">
+                            Событие: {{ photo.event_album.title }}<br>
+                            Класс: {{ photo.event_album.school_class.class_name }}<br>
+                            Учебный год: {{ photo.event_album.school_class.year_album.year }}<br>
+                            Загрузил: {{ photo.uploaded_by.username }} • {{ photo.uploaded_at|date:"d.m.Y H:i" }}
+                        </p>
                     </div>
                 </div>
-                {% endfor %}
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="confirmApprove('photo', {{ photo.id }}, 'Фото #{{ photo.id }}')"
+                            style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                        ✅ Одобрить
+                    </button>
+                    <button onclick="confirmReject('photo', {{ photo.id }}, 'Фото #{{ photo.id }}')"
+                            style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                        ❌ Отклонить
+                    </button>
+                </div>
             </div>
-        {% else %}
-            <div style="text-align: center; padding: 40px 20px; color: #666;">
-                <p>Нет фото на модерации</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if not pending_years and not pending_classes and not pending_events and not pending_photos %}
+    <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+        <div style="font-size: 48px; margin-bottom: 20px;">✅</div>
+        <h3 style="color: #666; margin-bottom: 15px;">Нет объектов для модерации</h3>
+        <p style="color: #888;">Все контент прошел модерацию. Отличная работа!</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- PhotoSwipe для модерации -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="pswp__bg"></div>
+    <div class="pswp__scroll-wrap">
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
             </div>
-        {% endif %}
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Данные для PhotoSwipe в модерации (без заголовков)
+var moderationPhotoSwipeItems = [
+    {% for photo in pending_photos %}
+    {
+        src: "{{ photo.image.url }}",
+        w: 0,
+        h: 0
+        // Убрана информация о фото - заголовок пустой
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+// Функция для получения реальных размеров изображения
+function getImageSize(src) {
+    return new Promise(function(resolve, reject) {
+        var img = new Image();
+        img.onload = function() {
+            resolve({
+                width: this.naturalWidth,
+                height: this.naturalHeight
+            });
+        };
+        img.onerror = reject;
+        img.src = src;
+    });
+}
+
+// Открытие фото в модерации
+function openModerationPhoto(index) {
+    var pswpElement = document.querySelectorAll('.pswp')[0];
+
+    var options = {
+        index: parseInt(index),
+        bgOpacity: 0.9,
+        showHideOpacity: true,
+        closeOnScroll: false,
+        history: false,
+        shareEl: false,
+        fullscreenEl: true,
+        zoomEl: true,
+        maxSpreadZoom: 3,
+        getDoubleTapZoom: function(isMouseClick, item) {
+            return item.initialZoomLevel < 0.7 ? 1 : 1.5;
+        },
+        imageClickAction: 'zoom',
+        tapToToggleControls: true,
+        pinchToClose: false,
+        // Отключаем отображение заголовков
+        addCaptionHTMLFn: function(item, captionEl) {
+            return false; // Не показываем заголовки
+        }
+    };
+
+    var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, moderationPhotoSwipeItems, options);
+
+    gallery.listen('gettingData', function(index, item) {
+        if (item.w < 1 || item.h < 1) {
+            getImageSize(item.src).then(function(size) {
+                item.w = size.width;
+                item.h = size.height;
+                gallery.invalidateCurrItems();
+                gallery.updateSize(true);
+            }).catch(function() {
+                item.w = 1200;
+                item.h = 800;
+                gallery.invalidateCurrItems();
+                gallery.updateSize(true);
+            });
+        }
+    });
+
+    // Добавляем горячую клавишу для скачивания
+    gallery.listen('afterInit', function() {
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'd' || e.key === 'D') {
+                e.preventDefault();
+                downloadModerationImage(gallery);
+            }
+        });
+    });
+
+    // Масштабирование колесиком мыши
+    gallery.listen('mouseUsed', function() {
+        var frame = gallery.currItem.holder;
+        if (frame) {
+            frame.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                if (e.ctrlKey) {
+                    var delta = e.deltaY > 0 ? -0.2 : 0.2;
+                    var newZoom = Math.max(0.5, Math.min(3, gallery.currItem.initialZoomLevel + delta));
+                    gallery.zoomTo(newZoom, {x: e.clientX, y: e.clientY}, 200);
+                } else {
+                    if (gallery.currItem.initialZoomLevel > 1) {
+                        var currentPanY = gallery.currItem.pan.y;
+                        gallery.currItem.pan.y = currentPanY - e.deltaY * 0.5;
+                        gallery.updateCurrItem();
+                    }
+                }
+            }, { passive: false });
+        }
+    });
+
+    gallery.init();
+}
+
+// Функция для скачивания изображения в модерации
+function downloadModerationImage(gallery) {
+    if (!gallery) return;
+
+    var item = gallery.currItem;
+    var currentIndex = gallery.getCurrentIndex();
+    var link = document.createElement('a');
+    link.href = item.src;
+    link.download = 'moderation_photo_' + (currentIndex + 1) + '.jpg';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showModerationDownloadNotification(gallery);
+}
+
+// Уведомление о скачивании в модерации
+function showModerationDownloadNotification(gallery) {
+    var counterEl = gallery.ui.element.querySelector('.pswp__counter');
+    if (counterEl) {
+        var originalText = counterEl.textContent;
+        counterEl.textContent = 'Скачивание...';
+        counterEl.style.color = '#4CAF50';
+
+        setTimeout(function() {
+            counterEl.textContent = originalText;
+            counterEl.style.color = '';
+        }, 800);
+    }
+}
+
+// Функции для подтверждения действий
+function confirmApprove(type, id, name) {
+    const typeNames = {
+        'year': 'учебный год',
+        'class': 'класс',
+        'event': 'событие',
+        'photo': 'фото'
+    };
+
+    if (confirm(`Вы уверены, что хотите ОДОБРИТЬ "${name}"?\n\nЭто действие сделает ${typeNames[type]} видимым для всех пользователей.`)) {
+        window.location.href = `/moderation/${type}/${id}/approve/`;
+    }
+}
+
+function confirmReject(type, id, name) {
+    const typeNames = {
+        'year': 'учебный год',
+        'class': 'класс',
+        'event': 'событие',
+        'photo': 'фото'
+    };
+
+    if (confirm(`Вы уверены, что хотите ОТКЛОНИТЬ "${name}"?\n\nЭто действие скроет ${typeNames[type]} от пользователей.`)) {
+        window.location.href = `/moderation/${type}/${id}/reject/`;
+    }
+}
+
+// Добавляем обработчики для клавиш
+document.addEventListener('DOMContentLoaded', function() {
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+        if (button.textContent.includes('✅')) {
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05)';
+                this.style.transition = 'all 0.2s';
+            });
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        }
+        if (button.textContent.includes('❌')) {
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05)';
+                this.style.transition = 'all 0.2s';
+            });
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        }
+    });
+});
+</script>
+
+<style>
+/* Дополнительные стили для кнопок модерации */
+button[onclick*="confirmApprove"]:hover {
+    background: #218838 !important;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+button[onclick*="confirmReject"]:hover {
+    background: #c82333 !important;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* Улучшаем качество изображений в PhotoSwipe */
+.pswp__img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* Скрываем заголовки в PhotoSwipe */
+.pswp__caption {
+    display: none !important;
+}
+
+/* Стили для диалогов подтверждения */
+@media (max-width: 768px) {
+    .moderation-item {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .moderation-actions {
+        justify-content: center;
+    }
+}
+</style>
 {% endblock %}
