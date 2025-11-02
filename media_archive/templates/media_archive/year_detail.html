@@ -4,34 +4,51 @@
 
 {% block content %}
 <div style="margin-bottom: 30px;">
-    <nav style="margin-bottom: 15px; font-size: 14px; color: #666;">
+    <nav style="margin-bottom: 20px; font-size: 14px; color: #666;">
         <a href="{% url 'home' %}" style="color: #cb5603; text-decoration: none;">Главная</a>
         &nbsp;→&nbsp;
         <span>{{ year.year }}</span>
     </nav>
 
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h1 class="page-title" style="margin-bottom: 0;">{{ year.year }} учебный год</h1>
-        <a href="{% url 'home' %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
-            ← Назад
-        </a>
+    <!-- Центрированный заголовок года -->
+    <div style="text-align: center; margin-bottom: 40px;">
+        <h1 class="page-title" style="margin-bottom: 10px; color: #cb5603;">{{ year.year }} учебный год</h1>
+        <p style="color: #666; font-size: 18px; margin: 0;">Классы этого учебного года</p>
     </div>
 </div>
 
-{% if classes %}
-<div class="classes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px;">
-    {% for class in classes %}
-    <div class="class-card" style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s ease;"
-         onclick="location.href='{% url 'class_detail' class.id %}'">
-        <h3 style="color: #cb5603; margin-bottom: 15px;">{{ class.class_name }}</h3>
+<!-- Кнопка удаления для создателя/админа -->
+{% if user.is_authenticated and user == year.created_by or user.is_staff or user.is_superuser %}
+<div style="text-align: center; margin: 15px 0;">
+    <a href="{% url 'delete_year' year.id %}" class="btn" style="background: #dc3545; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+        🗑️ Удалить год
+    </a>
+</div>
+{% endif %}
 
-        <div style="margin-bottom: 15px;">
+<!-- Универсальная кнопка создания класса -->
+{% if user.is_authenticated and classes %}
+<div style="text-align: center; margin: 25px 0;">
+    <a href="{% url 'create_class_for_year' year.id %}" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+        ➕ Создать класс в этом году
+    </a>
+</div>
+{% endif %}
+
+{% if classes %}
+<div class="classes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; justify-items: center;">
+    {% for class in classes %}
+    <div class="class-card" style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s ease; width: 100%; max-width: 350px;"
+         onclick="location.href='{% url 'class_detail' class.id %}'">
+        <h3 style="color: #cb5603; margin-bottom: 15px; text-align: center;">{{ class.class_name }}</h3>
+
+        <div style="margin-bottom: 15px; text-align: center;">
             <span style="color: #666; font-size: 14px;">
                 📅 {{ class.approved_events_count }} событий
             </span>
         </div>
 
-        <div style="color: #888; font-size: 13px;">
+        <div style="color: #888; font-size: 13px; text-align: center;">
             Создано: {{ class.created_by.username }}<br>
             {{ class.created_at|date:"d.m.Y" }}
         </div>
@@ -50,4 +67,11 @@
     {% endif %}
 </div>
 {% endif %}
+
+<!-- Кнопка назад внизу по центру -->
+<div style="text-align: center; margin-top: 40px;">
+    <a href="{% url 'home' %}" class="btn" style="background: #6c757d; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; display: inline-block;">
+        ← Назад на главную
+    </a>
+</div>
 {% endblock %}

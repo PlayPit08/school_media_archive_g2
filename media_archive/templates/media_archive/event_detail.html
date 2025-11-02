@@ -4,7 +4,7 @@
 
 {% block content %}
 <div style="margin-bottom: 30px;">
-    <nav style="margin-bottom: 15px; font-size: 14px; color: #666;">
+    <nav style="margin-bottom: 20px; font-size: 14px; color: #666;">
         <a href="{% url 'home' %}" style="color: #cb5603; text-decoration: none;">Главная</a>
         &nbsp;→&nbsp;
         <a href="{% url 'year_detail' event.school_class.year_album.id %}" style="color: #cb5603; text-decoration: none;">{{ event.school_class.year_album.year }}</a>
@@ -14,34 +14,55 @@
         <span>{{ event.title }}</span>
     </nav>
 
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-            <h1 class="page-title" style="margin-bottom: 0;">{{ event.title }}</h1>
-            <p style="color: #666; margin-top: 5px;">
-                Класс: {{ event.school_class.class_name }} •
-                Учебный год: {{ event.school_class.year_album.year }}
-            </p>
-        </div>
-        <a href="{% url 'class_detail' event.school_class.id %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
-            ← Назад к классу
-        </a>
+    <!-- Центрированный заголовок события -->
+    <div style="text-align: center; margin-bottom: 40px;">
+        <h1 class="page-title" style="margin-bottom: 10px; color: #cb5603;">{{ event.title }}</h1>
+        <p style="color: #666; font-size: 18px; margin: 0;">
+            Класс: {{ event.school_class.class_name }} • Учебный год: {{ event.school_class.year_album.year }}
+        </p>
     </div>
 </div>
+
+<!-- Кнопка удаления для создателя/админа -->
+{% if user.is_authenticated and user == event.created_by or user.is_staff or user.is_superuser %}
+<div style="text-align: center; margin: 15px 0;">
+    <a href="{% url 'delete_event' event.id %}" class="btn" style="background: #dc3545; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+        🗑️ Удалить событие
+    </a>
+</div>
+{% endif %}
+
+<!-- Универсальная кнопка создания фото -->
+{% if user.is_authenticated and photos %}
+<div style="text-align: center; margin: 25px 0;">
+    <a href="{% url 'upload_photo_for_event' event.id %}" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+        ➕ Добавить фото в это событие
+    </a>
+</div>
+{% endif %}
 
 {% if photos %}
 <!-- Миниатюры фотографий -->
 <div class="photos-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
     {% for photo in photos %}
-    <div class="photo-thumbnail"
-         style="background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; cursor: pointer; transition: all 0.3s ease;"
-         onclick="openPhotoSwipe({{ forloop.counter0 }})">
-        {% if photo.image %}
-            <img src="{{ photo.image.url }}"
-                 alt="Фото {{ photo.id }}"
-                 style="width: 100%; height: 150px; object-fit: cover; border-radius: 6px; margin-bottom: 8px;">
+    <div class="photo-thumbnail" style="position: relative;">
+        <!-- Кнопка удаления фото для создателя/админа -->
+        {% if user.is_authenticated and user == photo.uploaded_by or user.is_staff or user.is_superuser %}
+        <a href="{% url 'delete_photo' photo.id %}" 
+           style="position: absolute; top: 5px; right: 5px; background: rgba(220, 53, 69, 0.9); color: white; padding: 2px 6px; border-radius: 3px; text-decoration: none; font-size: 10px; z-index: 10;">
+            🗑️
+        </a>
         {% endif %}
-        <div style="color: #666; font-size: 11px;">
-            Фото #{{ forloop.counter }}
+        
+        <div onclick="openPhotoSwipe({{ forloop.counter0 }})" style="cursor: pointer;">
+            {% if photo.image %}
+                <img src="{{ photo.image.url }}"
+                     alt="Фото {{ photo.id }}"
+                     style="width: 100%; height: 150px; object-fit: cover; border-radius: 6px; margin-bottom: 8px;">
+            {% endif %}
+            <div style="color: #666; font-size: 11px;">
+                Фото #{{ forloop.counter }}
+            </div>
         </div>
     </div>
     {% endfor %}
@@ -95,9 +116,16 @@
     {% endif %}
 </div>
 {% endif %}
+
+<!-- Кнопка назад внизу по центру -->
+<div style="text-align: center; margin-top: 40px;">
+    <a href="{% url 'class_detail' event.school_class.id %}" class="btn" style="background: #6c757d; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; display: inline-block;">
+        ← Назад к классу
+    </a>
+</div>
 {% endblock %}
 
-<!-- Остальной код JavaScript остается без изменений -->
+
 {% block extra_js %}
 <script>
 // Функция для получения реальных размеров изображения

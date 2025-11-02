@@ -30,8 +30,15 @@
             {% endfor %}
         </div>
         {% empty %}
-        <div class="no-results">
-            Учебные годы не найдены.
+        <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+            <div style="font-size: 48px; margin-bottom: 20px;">📅</div>
+            <h3 style="color: #666; margin-bottom: 15px;">Пока нет учебных годов</h3>
+            <p style="color: #888; margin-bottom: 25px;">Учебные годы еще не добавлены или не одобрены</p>
+            {% if user.is_authenticated %}
+            <a href="{% url 'create_year' %}" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none;">
+                ➕ Добавить первый учебный год
+            </a>
+            {% endif %}
         </div>
         {% endfor %}
     </div>
@@ -110,7 +117,8 @@
         position: relative;
     }
     
-    .years-row:first-child::after {
+    /* Изменение: разделительная линия после КАЖДОГО ряда, кроме последнего */
+    .years-row:not(:last-child)::after {
         content: "";
         position: absolute;
         bottom: -20px;
@@ -180,6 +188,11 @@
         
         .year-title {
             font-size: 22px;
+        }
+
+        /* На мобильных убираем разделительные линии */
+        .years-row::after {
+            display: none;
         }
     }
 </style>

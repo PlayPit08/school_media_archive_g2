@@ -158,7 +158,7 @@ class Photo(models.Model):
     class Meta:
         verbose_name = 'Фотография'
         verbose_name_plural = 'Фотографии'
-        ordering = ['-uploaded_at']
+        ordering = ['uploaded_at']
 
     def __str__(self):
         return f"Фото {self.id} - {self.event_album.title}"

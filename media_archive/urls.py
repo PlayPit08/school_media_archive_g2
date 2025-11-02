@@ -41,6 +41,12 @@ urlpatterns = [
     path('moderation/event/<int:event_id>/reject/', views.reject_event, name='reject_event'),
     path('moderation/photo/<int:photo_id>/approve/', views.approve_photo, name='approve_photo'),
     path('moderation/photo/<int:photo_id>/reject/', views.reject_photo, name='reject_photo'),
+    
+    # Удаление
+    path('year/<int:year_id>/delete/', views.delete_year, name='delete_year'),
+    path('class/<int:class_id>/delete/', views.delete_class, name='delete_class'),
+    path('event/<int:event_id>/delete/', views.delete_event, name='delete_event'),
+    path('photo/<int:photo_id>/delete/', views.delete_photo, name='delete_photo'),
 
     # Отладка
     path('debug/', views.debug_home, name='debug_home'),

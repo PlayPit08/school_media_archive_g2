@@ -4,7 +4,7 @@
 
 {% block content %}
 <div style="margin-bottom: 30px;">
-    <nav style="margin-bottom: 15px; font-size: 14px; color: #666;">
+    <nav style="margin-bottom: 20px; font-size: 14px; color: #666;">
         <a href="{% url 'home' %}" style="color: #cb5603; text-decoration: none;">Главная</a>
         &nbsp;→&nbsp;
         <a href="{% url 'year_detail' school_class.year_album.id %}" style="color: #cb5603; text-decoration: none;">{{ school_class.year_album.year }}</a>
@@ -12,31 +12,45 @@
         <span>{{ school_class.class_name }}</span>
     </nav>
 
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-            <h1 class="page-title" style="margin-bottom: 5px;">{{ school_class.class_name }}</h1>
-            <p style="color: #666; margin: 0;">{{ school_class.year_album.year }} учебный год</p>
-        </div>
-        <a href="{% url 'year_detail' school_class.year_album.id %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
-            ← Назад к году
-        </a>
+    <!-- Центрированный заголовок класса -->
+    <div style="text-align: center; margin-bottom: 40px;">
+        <h1 class="page-title" style="margin-bottom: 10px; color: #cb5603;">{{ school_class.class_name }}</h1>
+        <p style="color: #666; font-size: 18px; margin: 0;">{{ school_class.year_album.year }} учебный год</p>
     </div>
 </div>
 
-{% if events %}
-<div class="events-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px;">
-    {% for event in events %}
-    <div class="event-card" style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s ease;"
-         onclick="location.href='{% url 'event_detail' event.id %}'">
-        <h3 style="color: #cb5603; margin-bottom: 15px;">{{ event.title }}</h3>
+<!-- Кнопка удаления для создателя/админа -->
+{% if user.is_authenticated and user == school_class.created_by or user.is_staff or user.is_superuser %}
+<div style="text-align: center; margin: 15px 0;">
+    <a href="{% url 'delete_class' school_class.id %}" class="btn" style="background: #dc3545; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+        🗑️ Удалить класс
+    </a>
+</div>
+{% endif %}
 
-        <div style="margin-bottom: 15px;">
+<!-- Универсальная кнопка создания события -->
+{% if user.is_authenticated and events %}
+<div style="text-align: center; margin: 25px 0;">
+    <a href="{% url 'create_event_for_class' school_class.id %}" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+        ➕ Создать событие в этом классе
+    </a>
+</div>
+{% endif %}
+
+{% if events %}
+<div class="events-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; justify-items: center;">
+    {% for event in events %}
+    <div class="event-card" style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s ease; width: 100%; max-width: 350px;"
+         onclick="location.href='{% url 'event_detail' event.id %}'">
+        <h3 style="color: #cb5603; margin-bottom: 15px; text-align: center;">{{ event.title }}</h3>
+
+        <div style="margin-bottom: 15px; text-align: center;">
             <span style="color: #666; font-size: 14px;">
                 📸 {{ event.approved_photos_count }} фото
             </span>
         </div>
 
-        <div style="color: #888; font-size: 13px;">
+        <div style="color: #888; font-size: 13px; text-align: center;">
             Создано: {{ event.created_by.username }}<br>
             {{ event.created_at|date:"d.m.Y" }}
         </div>
@@ -55,4 +69,11 @@
     {% endif %}
 </div>
 {% endif %}
+
+<!-- Кнопка назад внизу по центру -->
+<div style="text-align: center; margin-top: 40px;">
+    <a href="{% url 'year_detail' school_class.year_album.id %}" class="btn" style="background: #6c757d; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; display: inline-block;">
+        ← Назад к году
+    </a>
+</div>
 {% endblock %}

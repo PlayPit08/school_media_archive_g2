@@ -75,7 +75,7 @@ def class_detail(request, class_id):
 # Просмотр события - показываем одобренные фото
 def event_detail(request, event_id):
     event = get_object_or_404(EventAlbum, id=event_id, status='approved')
-    photos = event.photos.filter(status='approved').order_by('-uploaded_at')
+    photos = event.photos.filter(status='approved').order_by('uploaded_at')  # Изменено с '-uploaded_at' на 'uploaded_at'
 
     return render(request, 'media_archive/event_detail.html', {
         'event': event,
@@ -89,7 +89,7 @@ def profile(request):
     user_years = YearAlbum.objects.filter(created_by=request.user)
     user_classes = SchoolClass.objects.filter(created_by=request.user)
     user_events = EventAlbum.objects.filter(created_by=request.user)
-    user_photos = Photo.objects.filter(uploaded_by=request.user)
+    user_photos = Photo.objects.filter(uploaded_by=request.user).order_by('uploaded_at')
 
     # Данные для панели модератора
     pending_years_count = 0
@@ -203,29 +203,45 @@ def create_event(request):
         'next': request.META.get('HTTP_REFERER', 'profile')
     })
 
-# Загрузка фото
+
 @login_required
 def upload_photo(request):
     if request.method == 'POST':
         form = PhotoUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            photo = form.save(commit=False)
-            photo.uploaded_by = request.user
-
-            # Авто-одобрение для админов и модераторов
+            event_album = form.cleaned_data['event_album']
+            images = request.FILES.getlist('images')  # Получаем список файлов
+            
+            if not images:
+                messages.error(request, 'Пожалуйста, выберите хотя бы одну фотографию.')
+                return render(request, 'media_archive/upload_photo.html', {'form': form})
+            
+            success_count = 0
+            for image in images:
+                photo = Photo(
+                    event_album=event_album,
+                    image=image,
+                    uploaded_by=request.user
+                )
+                
+                # Авто-одобрение для админов и модераторов
+                if request.user.is_staff or request.user.is_superuser:
+                    photo.status = 'approved'
+                else:
+                    photo.status = 'pending'
+                
+                photo.save()
+                success_count += 1
+            
             if request.user.is_staff or request.user.is_superuser:
-                photo.status = 'approved'
-                messages.success(request, 'Фото загружено и опубликовано!')
+                messages.success(request, f'{success_count} фотографий загружено и опубликовано!')
             else:
-                photo.status = 'pending'
-                messages.success(request, 'Фото загружено и отправлено на модерацию!')
-
-            photo.save()
-
-            # Для фото редиректим на событие, если оно известно
+                messages.success(request, f'{success_count} фотографий загружено и отправлено на модерацию!')
+            
+            # Редирект на событие, если оно известно
             next_url = request.POST.get('next', request.GET.get('next', 'profile'))
             if 'event_detail' in next_url:
-                return redirect('event_detail', event_id=photo.event_album.id)
+                return redirect('event_detail', event_id=event_album.id)
             return redirect(next_url)
     else:
         form = PhotoUploadForm()
@@ -330,7 +346,6 @@ def create_event_for_year(request, year_id):
         'predefined_year': True
     })
 
-# Загрузка фото для события (с предвыбором)
 @login_required
 def upload_photo_for_event(request, event_id):
     event = get_object_or_404(EventAlbum, id=event_id, status='approved')
@@ -338,18 +353,38 @@ def upload_photo_for_event(request, event_id):
     if request.method == 'POST':
         form = PhotoUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            photo = form.save(commit=False)
-            photo.uploaded_by = request.user
-            photo.event_album = event  # Автоматически устанавливаем событие
-
+            images = request.FILES.getlist('images')  # Получаем список файлов
+            
+            if not images:
+                messages.error(request, 'Пожалуйста, выберите хотя бы одну фотографию.')
+                return render(request, 'media_archive/upload_photo.html', {
+                    'form': form,
+                    'event': event,
+                    'predefined_event': True
+                })
+            
+            success_count = 0
+            for image in images:
+                photo = Photo(
+                    event_album=event,
+                    image=image,
+                    uploaded_by=request.user
+                )
+                
+                # Авто-одобрение для админов и модераторов
+                if request.user.is_staff or request.user.is_superuser:
+                    photo.status = 'approved'
+                else:
+                    photo.status = 'pending'
+                
+                photo.save()
+                success_count += 1
+            
             if request.user.is_staff or request.user.is_superuser:
-                photo.status = 'approved'
-                messages.success(request, 'Фото загружено и опубликовано!')
+                messages.success(request, f'{success_count} фотографий загружено и опубликовано!')
             else:
-                photo.status = 'pending'
-                messages.success(request, 'Фото загружено и отправлено на модерацию!')
-
-            photo.save()
+                messages.success(request, f'{success_count} фотографий загружено и отправлено на модерацию!')
+            
             return redirect('event_detail', event_id=event_id)
     else:
         # Создаем форму с предвыбранным событием
@@ -360,7 +395,7 @@ def upload_photo_for_event(request, event_id):
     return render(request, 'media_archive/upload_photo.html', {
         'form': form,
         'event': event,
-        'predefined_event': True  # Передаем флаг что событие предопределено
+        'predefined_event': True
     })
 
 # Загрузка фото для класса (с предвыбором)
@@ -372,17 +407,38 @@ def upload_photo_for_class(request, class_id):
     if request.method == 'POST':
         form = PhotoUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            photo = form.save(commit=False)
-            photo.uploaded_by = request.user
-
+            event_album = form.cleaned_data['event_album']
+            images = request.FILES.getlist('images')  # Получаем список файлов
+            
+            if not images:
+                messages.error(request, 'Пожалуйста, выберите хотя бы одну фотографию.')
+                return render(request, 'media_archive/upload_photo.html', {
+                    'form': form,
+                    'school_class': school_class,
+                    'predefined_class': True
+                })
+            
+            success_count = 0
+            for image in images:
+                photo = Photo(
+                    event_album=event_album,
+                    image=image,
+                    uploaded_by=request.user
+                )
+                
+                if request.user.is_staff or request.user.is_superuser:
+                    photo.status = 'approved'
+                else:
+                    photo.status = 'pending'
+                
+                photo.save()
+                success_count += 1
+            
             if request.user.is_staff or request.user.is_superuser:
-                photo.status = 'approved'
-                messages.success(request, 'Фото загружено и опубликовано!')
+                messages.success(request, f'{success_count} фотографий загружено и опубликовано!')
             else:
-                photo.status = 'pending'
-                messages.success(request, 'Фото загружено и отправлено на модерацию!')
-
-            photo.save()
+                messages.success(request, f'{success_count} фотографий загружено и отправлено на модерацию!')
+            
             return redirect('class_detail', class_id=class_id)
     else:
         form = PhotoUploadForm()
@@ -393,6 +449,99 @@ def upload_photo_for_class(request, class_id):
         'form': form,
         'school_class': school_class,
         'predefined_class': True
+    })
+
+# Удаление учебного года (только создатель или админ)
+@login_required
+def delete_year(request, year_id):
+    year = get_object_or_404(YearAlbum, id=year_id)
+    
+    # Проверяем права: создатель или админ
+    if year.created_by != request.user and not request.user.is_staff and not request.user.is_superuser:
+        messages.error(request, 'У вас нет прав для удаления этого учебного года')
+        return redirect('profile')
+    
+    if request.method == 'POST':
+        year_name = year.year
+        year.delete()
+        messages.success(request, f'Учебный год {year_name} удален!')
+        return redirect('profile')
+    
+    return render(request, 'media_archive/confirm_delete.html', {
+        'object': year,
+        'object_type': 'учебный год',
+        'back_url': 'profile'
+    })
+
+# Удаление класса (только создатель или админ)
+@login_required
+def delete_class(request, class_id):
+    school_class = get_object_or_404(SchoolClass, id=class_id)
+    
+    # Проверяем права: создатель или админ
+    if school_class.created_by != request.user and not request.user.is_staff and not request.user.is_superuser:
+        messages.error(request, 'У вас нет прав для удаления этого класса')
+        return redirect('profile')
+    
+    if request.method == 'POST':
+        class_name = school_class.class_name
+        year_id = school_class.year_album.id
+        school_class.delete()
+        messages.success(request, f'Класс {class_name} удален!')
+        return redirect('year_detail', year_id=year_id)
+    
+    return render(request, 'media_archive/confirm_delete.html', {
+        'object': school_class,
+        'object_type': 'класс',
+        'back_url': 'year_detail',
+        'back_id': school_class.year_album.id
+    })
+
+# Удаление события (только создатель или админ)
+@login_required
+def delete_event(request, event_id):
+    event = get_object_or_404(EventAlbum, id=event_id)
+    
+    # Проверяем права: создатель или админ
+    if event.created_by != request.user and not request.user.is_staff and not request.user.is_superuser:
+        messages.error(request, 'У вас нет прав для удаления этого события')
+        return redirect('profile')
+    
+    if request.method == 'POST':
+        event_title = event.title
+        class_id = event.school_class.id
+        event.delete()
+        messages.success(request, f'Событие "{event_title}" удалено!')
+        return redirect('class_detail', class_id=class_id)
+    
+    return render(request, 'media_archive/confirm_delete.html', {
+        'object': event,
+        'object_type': 'событие',
+        'back_url': 'class_detail',
+        'back_id': event.school_class.id
+    })
+
+# Удаление фото (только создатель или админ)
+@login_required
+def delete_photo(request, photo_id):
+    photo = get_object_or_404(Photo, id=photo_id)
+    
+    # Проверяем права: создатель или админ
+    if photo.uploaded_by != request.user and not request.user.is_staff and not request.user.is_superuser:
+        messages.error(request, 'У вас нет прав для удаления этой фотографии')
+        return redirect('profile')
+    
+    if request.method == 'POST':
+        event_id = photo.event_album.id
+        photo.delete()
+        messages.success(request, 'Фотография удалена!')
+        return redirect('event_detail', event_id=event_id)
+    
+    return render(request, 'media_archive/confirm_delete.html', {
+        'object': photo,
+        'object_type': 'фотографию',
+        'back_url': 'event_detail',
+        'back_id': photo.event_album.id
     })
 
 # Аутентификация
@@ -454,7 +603,7 @@ def moderation_dashboard(request):
     pending_years = YearAlbum.objects.filter(status='pending')
     pending_classes = SchoolClass.objects.filter(status='pending')
     pending_events = EventAlbum.objects.filter(status='pending')
-    pending_photos = Photo.objects.filter(status='pending')
+    pending_photos = Photo.objects.filter(status='pending').order_by('uploaded_at')
 
     return render(request, 'media_archive/moderation_dashboard.html', {
         'pending_years': pending_years,

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Подтверждение удаления - Фотоархив школы №2086{% endblock %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 0 auto;">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h1 class="page-title" style="color: #dc3545;">❌ Подтверждение удаления</h1>
+    </div>
+
+    <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+        <h3 style="color: #333; margin-bottom: 15px;">Вы уверены, что хотите удалить {{ object_type }}?</h3>
+        
+        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ffc107;">
+            <strong>{{ object }}</strong>
+            {% if object_type == 'учебный год' %}
+                <div style="color: #666; font-size: 14px; margin-top: 5px;">
+                    Создано: {{ object.created_by.username }} • {{ object.created_at|date:"d.m.Y" }}
+                </div>
+            {% elif object_type == 'класс' %}
+                <div style="color: #666; font-size: 14px; margin-top: 5px;">
+                    Учебный год: {{ object.year_album.year }}<br>
+                    Создано: {{ object.created_by.username }} • {{ object.created_at|date:"d.m.Y" }}
+                </div>
+            {% elif object_type == 'событие' %}
+                <div style="color: #666; font-size: 14px; margin-top: 5px;">
+                    Класс: {{ object.school_class.class_name }}<br>
+                    Создано: {{ object.created_by.username }} • {{ object.created_at|date:"d.m.Y" }}
+                </div>
+            {% elif object_type == 'фотографию' %}
+                <div style="color: #666; font-size: 14px; margin-top: 5px;">
+                    Событие: {{ object.event_album.title }}<br>
+                    Загружено: {{ object.uploaded_by.username }} • {{ object.uploaded_at|date:"d.m.Y" }}
+                </div>
+            {% endif %}
+        </div>
+
+        <p style="color: #666; margin-bottom: 25px;">
+            Это действие нельзя отменить. Все связанные данные будут удалены.
+        </p>
+
+        <form method="post" style="display: flex; gap: 15px; justify-content: center;">
+            {% csrf_token %}
+            <button type="submit" style="background: #dc3545; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; transition: all 0.3s;">
+                ✅ Да, удалить
+            </button>
+            <a href="{% if back_id %}{% url back_url back_id %}{% else %}{% url back_url %}{% endif %}" 
+               style="background: #6c757d; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; display: inline-block; font-size: 16px;">
+                ❌ Отмена
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

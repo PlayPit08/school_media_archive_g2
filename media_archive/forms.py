@@ -92,16 +92,38 @@ class EventAlbumForm(forms.ModelForm):
         # Показываем только одобренные классы
         self.fields['school_class'].queryset = SchoolClass.objects.filter(status='approved')
 
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+class MultipleImageField(forms.ImageField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = single_file_clean(data, initial)
+        return result
+
 class PhotoUploadForm(forms.ModelForm):
+    # Используем кастомное поле для множественной загрузки
+    images = MultipleImageField(
+        widget=MultipleFileInput(attrs={
+            'class': 'form-control',
+            'multiple': True,
+            'accept': 'image/*'
+        }),
+        label='Выберите фотографии',
+        required=False
+    )
+    
     class Meta:
         model = Photo
-        fields = ['image', 'event_album']
-        widgets = {
-            'image': forms.FileInput(attrs={'class': 'form-control'}),
-            'event_album': forms.Select(attrs={'class': 'form-control'}),
-        }
-
+        fields = ['event_album']
+        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Показываем только одобренные события
         self.fields['event_album'].queryset = EventAlbum.objects.filter(status='approved')
