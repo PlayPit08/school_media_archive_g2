@@ -18,16 +18,7 @@
 </div>
 
 {% if classes %}
-<!-- Кнопка добавления класса (когда классы уже есть) - КВАДРАТНАЯ КНОПКА -->
-{% if user.is_authenticated %}
-<div class="add-button-container">
-    <a href="{% url 'create_class_for_year' year.id %}" class="add-class-card-small">
-        <span class="add-card-icon">+</span>
-        <span class="add-card-text">Добавить класс в этот год</span>
-    </a>
-</div>
-{% endif %}
-
+<!-- УБИРАЕМ верхнюю кнопку когда классы уже есть -->
 <div class="years-container" style="display: flex; flex-direction: column; gap: 40px;">
     {% for class_group in classes %}
     <div class="years-row" style="display: flex; justify-content: space-between; gap: 30px; position: relative;">
@@ -77,7 +68,7 @@
                         </div>
                     </div>
                 {% else %}
-                    <!-- Ряд полный (3 элемента) - кнопка уже показана выше -->
+                    <!-- Ряд полный (3 элемента) - кнопка пойдет в следующий ряд -->
                 {% endif %}
             {% endwith %}
         {% else %}
@@ -138,8 +129,8 @@
     margin: 30px 0;
 }
 
-/* Маленькая квадратная кнопка (когда есть классы) */
-.add-class-card-small {
+/* Маленькая квадратная кнопка (когда есть классы) - УБРАНА */
+/* .add-class-card-small {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -165,7 +156,7 @@
     border-color: #a84502;
     border-style: solid;
     color: #a84502;
-}
+} */
 
 /* Карточка добавления в сетке */
 .add-class-card {
@@ -242,8 +233,6 @@
 
 .add-class-card:hover .add-card-icon,
 .add-class-card:hover .add-card-text,
-.add-class-card-small:hover .add-card-icon,
-.add-class-card-small:hover .add-card-text,
 .add-class-card-large:hover .add-card-icon,
 .add-class-card-large:hover .add-card-text {
     color: #a84502;
@@ -293,12 +282,6 @@
     .add-class-card {
         width: 100% !important;
         padding: 40px 25px;
-    }
-    
-    .add-class-card-small {
-        padding: 12px 24px;
-        font-size: 14px;
-        min-width: 200px;
     }
     
     .add-class-card-large {

@@ -51,17 +51,17 @@
         </div>
     </div>
     {% endfor %}
+    
+    <!-- Добавляем кнопку добавления фото как элемент сетки -->
+    {% if user.is_authenticated %}
+    <div class="add-photo-card" onclick="location.href='{% url 'upload_photo_for_event' event.id %}'">
+        <div class="add-card-content">
+            <span class="add-card-icon">+</span>
+            <span class="add-card-text">Добавить фото</span>
+        </div>
+    </div>
+    {% endif %}
 </div>
-
-<!-- Добавляем кнопку добавления фото в конец сетки -->
-{% if user.is_authenticated %}
-<div class="add-photo-container" style="text-align: center; margin-top: 30px;">
-    <a href="{% url 'upload_photo_for_event' event.id %}" class="add-photo-card">
-        <span class="add-card-icon">+</span>
-        <span class="add-card-text">Добавить фото</span>
-    </a>
-</div>
-{% endif %}
 
 <!-- Root element of PhotoSwipe -->
 <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
@@ -118,38 +118,29 @@
 {% block extra_css %}
 <style>
 /* Стили для КВАДРАТНЫХ кнопок добавления фото */
-.add-photo-container {
-    text-align: center;
-    margin: 30px 0;
-}
-
-/* Квадратная кнопка добавления фото (когда фото уже есть) */
+/* Карточка добавления в сетке фотографий */
 .add-photo-card {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
     background: #f8f9fa;
-    color: #cb5603;
-    text-decoration: none;
-    padding: 15px 30px;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(203, 86, 3, 0.2);
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
     transition: all 0.3s ease;
     border: 2px dashed #cb5603;
     cursor: pointer;
-    min-width: 200px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 250px;
 }
 
 .add-photo-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(203, 86, 3, 0.3);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
     background: #fff;
     border-color: #a84502;
     border-style: solid;
-    color: #a84502;
 }
 
 /* Большая квадратная кнопка для пустого состояния */
@@ -181,16 +172,25 @@
     color: #a84502;
 }
 
+.add-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
 .add-card-icon {
-    font-size: 24px;
+    font-size: 36px;
     color: #cb5603;
     font-weight: 300;
+    line-height: 1;
 }
 
 .add-card-text {
     font-size: 16px;
     font-weight: 600;
     color: #cb5603;
+    text-align: center;
 }
 
 .add-photo-card:hover .add-card-icon,
@@ -263,9 +263,8 @@
 
 @media (max-width: 768px) {
     .add-photo-card {
-        padding: 12px 24px;
-        font-size: 14px;
-        min-width: 180px;
+        min-height: 200px;
+        padding: 20px 15px;
     }
     
     .add-photo-card-large {
@@ -458,6 +457,22 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Добавляем эффект наведения на кнопку добавления фото
+    var addPhotoCard = document.querySelector('.add-photo-card');
+    if (addPhotoCard) {
+        addPhotoCard.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+            this.style.boxShadow = '0 8px 20px rgba(0,0,0,0.15)';
+            this.style.background = '#fff !important';
+        });
+        
+        addPhotoCard.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)';
+            this.style.background = '#f8f9fa !important';
+        });
+    }
 });
 </script>
 {% endblock %}
