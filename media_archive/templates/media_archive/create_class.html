@@ -5,7 +5,13 @@
 {% block content %}
 <div style="max-width: 600px; margin: 0 auto;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <h1 class="page-title" style="margin-bottom: 0;">Создание класса</h1>
+        <h1 class="form-page-title" style="margin-bottom: 0;">
+            {% if predefined_year %}
+                Создание класса
+            {% else %}
+                Создание класса
+            {% endif %}
+        </h1>
         {% if predefined_year %}
         <a href="{% url 'year_detail' year.id %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
             ← Назад к году
@@ -18,7 +24,7 @@
     </div>
 
     <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
-        <form method="post" id="createClassForm">
+        <form method="post">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ next }}">
 
@@ -44,12 +50,9 @@
                     {{ form.class_name.errors }}
                 </div>
                 {% endif %}
-                <div style="color: #666; font-size: 12px; margin-top: 5px;">
-                    Например: 5А, 10Б
-                </div>
             </div>
 
-            <!-- Поле выбора года (только если не предопределен) -->
+            <!-- Поле выбора года показываем ТОЛЬКО если НЕ predefined_year -->
             {% if not predefined_year %}
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
@@ -67,7 +70,7 @@
             {{ form.year_album }}
             {% endif %}
 
-            <button type="button" onclick="confirmCreateClass()" style="background: #cb5603; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; transition: all 0.3s;">
+            <button type="submit" style="background: #cb5603; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; transition: all 0.3s;">
                 📝 Создать класс
             </button>
 
@@ -80,50 +83,4 @@
         </form>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-function confirmCreateClass() {
-    const classNameInput = document.querySelector('#id_class_name');
-    const yearSelect = document.querySelector('#id_year_album');
-    const className = classNameInput.value.trim();
-
-    // Определяем текст года в зависимости от контекста
-    let yearText;
-    {% if predefined_year %}
-        yearText = "{{ year.year }}";
-    {% else %}
-        if (yearSelect.value === '') {
-            showConfirmationModal(
-                'Ошибка',
-                'Пожалуйста, выберите учебный год',
-                '❌',
-                null
-            );
-            return;
-        }
-        yearText = yearSelect.options[yearSelect.selectedIndex].text;
-    {% endif %}
-
-    if (!className) {
-        showConfirmationModal(
-            'Ошибка',
-            'Пожалуйста, введите название класса',
-            '❌',
-            null
-        );
-        return;
-    }
-
-    showConfirmationModal(
-        'Создание класса',
-        `Вы уверены, что хотите создать класс "${className}" для учебного года "${yearText}"?\n\nПосле создания класс будет отправлен на модерацию.`,
-        '📝',
-        function() {
-            document.getElementById('createClassForm').submit();
-        }
-    );
-}
-</script>
 {% endblock %}

@@ -36,6 +36,15 @@ class YearAlbumForm(forms.ModelForm):
         if end_year != start_year + 1:
             raise forms.ValidationError('Второй год должен быть на 1 больше первого (например: 2023-2024)')
 
+        # Проверяем уникальность среди approved годов
+        existing_year = YearAlbum.objects.filter(
+            year=year, 
+            status='approved'
+        ).exists()
+        
+        if existing_year:
+            raise forms.ValidationError('Учебный год с таким названием уже существует на сайте')
+
         return year
 
 class SchoolClassForm(forms.ModelForm):
@@ -75,6 +84,29 @@ class SchoolClassForm(forms.ModelForm):
 
         return class_name
 
+    def clean(self):
+        cleaned_data = super().clean()
+        class_name = cleaned_data.get('class_name')
+        year_album = cleaned_data.get('year_album')
+
+        # Проверяем уникальность класса в рамках учебного года
+        if class_name and year_album:
+            # Нормализуем название класса
+            normalized_class_name = class_name.strip().upper()
+            
+            existing_class = SchoolClass.objects.filter(
+                class_name=normalized_class_name,
+                year_album=year_album,
+                status='approved'
+            ).exists()
+            
+            if existing_class:
+                raise forms.ValidationError({
+                    'class_name': f'Класс "{normalized_class_name}" уже существует в учебном году {year_album.year}'
+                })
+
+        return cleaned_data
+
 class EventAlbumForm(forms.ModelForm):
     class Meta:
         model = EventAlbum
@@ -91,6 +123,29 @@ class EventAlbumForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Показываем только одобренные классы
         self.fields['school_class'].queryset = SchoolClass.objects.filter(status='approved')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        title = cleaned_data.get('title')
+        school_class = cleaned_data.get('school_class')
+
+        # Проверяем уникальность события в рамках класса
+        if title and school_class:
+            # Нормализуем название события (убираем лишние пробелы)
+            normalized_title = ' '.join(title.strip().split())
+            
+            existing_event = EventAlbum.objects.filter(
+                title=normalized_title,
+                school_class=school_class,
+                status='approved'
+            ).exists()
+            
+            if existing_event:
+                raise forms.ValidationError({
+                    'title': f'Событие "{normalized_title}" уже существует в классе {school_class.class_name}'
+                })
+
+        return cleaned_data
 
 class MultipleFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True

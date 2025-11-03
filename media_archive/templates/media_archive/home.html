@@ -4,11 +4,14 @@
 <h1 class="page-title">Наша история</h1>
 
 <section class="search-section" id="search">
-    <h2 class="section-title">Поиск по годам</h2>
-    
-    <div class="search-form">
-        <input type="text" class="search-input" placeholder="Введите год (например: 2023)" id="searchInput">
-        <button type="button" class="search-button" id="searchButton">Найти</button>
+    <div class="search-header">
+        <h2 class="section-title">Поиск по годам</h2>
+        
+        <!-- Поисковая строка -->
+        <div class="search-form">
+            <input type="text" class="search-input" placeholder="Введите год (например: 2023)" id="searchInput">
+            <button type="button" class="search-button" id="searchButton">Найти</button>
+        </div>
     </div>
     
     <div class="loading" id="loadingIndicator">
@@ -16,31 +19,103 @@
     </div>
     
     <div class="years-container" id="yearsContainer">
-        {% for row in years %}
-        <div class="years-row">
-            {% for year in row %}
-            <div class="year-card" data-year="{{ year.year }}" 
-                 onclick="location.href='{% url 'year_detail' year.id %}'" 
-                 style="cursor: pointer;">
-                <div class="year-title">{{ year.year }}</div>
-                <div style="margin-top: 10px; font-size: 14px; color: #666;">
-                    {{ year.classes.count }} классов
+        {% if years %}
+            <!-- Есть годы - показываем как карточки -->
+            {% for row in years %}
+            <div class="years-row">
+                {% for year in row %}
+                <div class="year-card" data-year="{{ year.year }}" 
+                     style="position: relative; cursor: pointer; background: #f8f9fa; padding: 50px 30px; border-radius: 8px; text-align: center; transition: all 0.3s ease; border: 1px solid #e0e0e0; width: 30%; box-shadow: 0 4px 6px rgba(0,0,0,0.05);"
+                     onclick="location.href='{% url 'year_detail' year.id %}'">
+                    
+                    <!-- Кнопка удаления года -->
+                    {% if user.is_authenticated and user == year.created_by or user.is_staff or user.is_superuser %}
+                    <a href="{% url 'delete_year' year.id %}" 
+                       class="delete-btn"
+                       style="position: absolute; top: 15px; right: 15px; background: rgba(220, 53, 69, 0.9); color: white; padding: 8px 10px; border-radius: 4px; text-decoration: none; font-size: 14px; z-index: 10; opacity: 0; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: 1px solid rgba(255,255,255,0.3);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                    </a>
+                    {% endif %}
+                    
+                    <div class="year-title" style="font-size: 26px; font-weight: 700; color: #000;">{{ year.year }}</div>
+                    <div style="margin-top: 10px; font-size: 14px; color: #666;">
+                        {{ year.classes.count }} классов
+                    </div>
                 </div>
+                {% endfor %}
+                
+                <!-- Добавляем кнопку добавления в ТЕКУЩИЙ ряд, если есть место -->
+                {% if forloop.last and user.is_authenticated %}
+                    {% with row_length=row|length %}
+                        {% if row_length == 1 %}
+                            <div class="add-year-card" onclick="location.href='{% url 'create_year' %}'">
+                                <div class="add-card-content">
+                                    <span class="add-card-icon">+</span>
+                                    <span class="add-card-text">Добавить год</span>
+                                </div>
+                            </div>
+                            <div style="width: 30%; visibility: hidden;"></div>
+                        {% elif row_length == 2 %}
+                            <div class="add-year-card" onclick="location.href='{% url 'create_year' %}'">
+                                <div class="add-card-content">
+                                    <span class="add-card-icon">+</span>
+                                    <span class="add-card-text">Добавить год</span>
+                                </div>
+                            </div>
+                        {% else %}
+                            <!-- Ряд полный (3 элемента) - кнопка пойдет в следующий ряд -->
+                        {% endif %}
+                    {% endwith %}
+                {% else %}
+                    <!-- Добавляем пустые карточки для заполнения ряда -->
+                    {% with row_length=row|length %}
+                        {% if row_length == 1 %}
+                            <div style="width: 30%; visibility: hidden;"></div>
+                            <div style="width: 30%; visibility: hidden;"></div>
+                        {% elif row_length == 2 %}
+                            <div style="width: 30%; visibility: hidden;"></div>
+                        {% endif %}
+                    {% endwith %}
+                {% endif %}
             </div>
-            {% endfor %}
-        </div>
-        {% empty %}
-        <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
-            <div style="font-size: 48px; margin-bottom: 20px;">📅</div>
-            <h3 style="color: #666; margin-bottom: 15px;">Пока нет учебных годов</h3>
-            <p style="color: #888; margin-bottom: 25px;">Учебные годы еще не добавлены или не одобрены</p>
-            {% if user.is_authenticated %}
-            <a href="{% url 'create_year' %}" class="btn" style="background: #cb5603; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none;">
-                ➕ Добавить первый учебный год
-            </a>
+            
+            <!-- Если последний ряд полный (3 элемента), добавляем новый ряд с кнопкой добавления -->
+            {% if forloop.last and row|length == 3 and user.is_authenticated %}
+            <div class="years-row">
+                <div class="add-year-card" onclick="location.href='{% url 'create_year' %}'">
+                    <div class="add-card-content">
+                        <span class="add-card-icon">+</span>
+                        <span class="add-card-text">Добавить год</span>
+                    </div>
+                </div>
+                <div style="width: 30%; visibility: hidden;"></div>
+                <div style="width: 30%; visibility: hidden;"></div>
+            </div>
             {% endif %}
-        </div>
-        {% endfor %}
+            
+            {% if not forloop.last %}
+            <div style="position: relative;">
+                <div style="position: absolute; bottom: -20px; left: 5%; width: 90%; height: 2px; background: #cb5603;"></div>
+            </div>
+            {% endif %}
+            {% endfor %}
+            
+        {% else %}
+            <!-- Нет годов - показываем большое пустое состояние по центру (как было изначально) -->
+            <div class="empty-state">
+                <div class="empty-icon">📅</div>
+                <h3>Пока нет учебных годов</h3>
+                <p>Учебные годы еще не добавлены или не одобрены</p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'create_year' %}" class="add-year-card-large">
+                    <span class="add-card-icon">+</span>
+                    <span class="add-card-text">Создать первый учебный год</span>
+                </a>
+                {% endif %}
+            </div>
+        {% endif %}
     </div>
     
     <div class="no-results" id="noResults">
@@ -51,155 +126,308 @@
 
 {% block extra_css %}
 <style>
-    .search-section {
-        background-color: #fff;
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        margin-bottom: 40px;
+/* Центрирование заголовка поиска */
+.search-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.section-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 25px;
+}
+
+/* Стили для пустого состояния (возвращаем как было) */
+.empty-state {
+    text-align: center;
+    padding: 80px 40px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    margin: 40px 0;
+}
+
+.empty-icon {
+    font-size: 80px;
+    margin-bottom: 30px;
+    opacity: 0.8;
+}
+
+.empty-state h3 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.empty-state p {
+    color: #666;
+    margin-bottom: 40px;
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+/* Большая квадратная кнопка для пустого состояния */
+.add-year-card-large {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    background: #f8f9fa;
+    color: #cb5603;
+    text-decoration: none;
+    padding: 25px 50px;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: 600;
+    box-shadow: 0 6px 20px rgba(203, 86, 3, 0.2);
+    transition: all 0.3s ease;
+    border: 2px dashed #cb5603;
+    cursor: pointer;
+    min-width: 300px;
+}
+
+.add-year-card-large:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(203, 86, 3, 0.3);
+    background: #fff;
+    border-color: #a84502;
+    border-style: solid;
+    color: #a84502;
+}
+
+.add-year-card-large .add-card-icon {
+    font-size: 28px;
+    font-weight: 300;
+}
+
+.add-year-card-large .add-card-text {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+/* Стили для карточки добавления в сетке */
+.add-year-card {
+    width: 30%;
+    background: #f8f9fa;
+    padding: 50px 30px;
+    border-radius: 8px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 2px dashed #cb5603;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-year-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    background: #fff;
+    border-color: #a84502;
+    border-style: solid;
+}
+
+.add-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.add-card-icon {
+    font-size: 36px;
+    color: #cb5603;
+    font-weight: 300;
+    line-height: 1;
+}
+
+.add-card-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #cb5603;
+}
+
+.add-year-card:hover .add-card-icon,
+.add-year-card:hover .add-card-text {
+    color: #a84502;
+}
+
+/* Стили для поиска */
+.search-form {
+    display: flex;
+    gap: 15px;
+    max-width: 500px;
+    margin: 0 auto 30px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #cb5603;
+}
+
+.search-button {
+    background: #cb5603;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-button:hover {
+    background: #a84502;
+}
+
+/* Стили для контейнера годов */
+.years-container {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.years-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    position: relative;
+}
+
+/* Разделительная линия после КАЖДОГО ряда, кроме последнего */
+.years-row:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    bottom: -20px;
+    left: 5%;
+    width: 90%;
+    height: 2px;
+    background: #cb5603;
+}
+
+.year-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    background: #fff !important;
+}
+
+.year-card:hover .delete-btn {
+    opacity: 1 !important;
+}
+
+.delete-btn:hover {
+    background: rgba(220, 53, 69, 1) !important;
+    transform: scale(1.1);
+}
+
+.no-results {
+    text-align: center;
+    padding: 30px;
+    font-size: 18px;
+    color: #666;
+    display: none;
+}
+
+.year-card.highlight {
+    background-color: #fff3e0;
+    border-color: #cb5603;
+    box-shadow: 0 4px 12px rgba(203, 86, 3, 0.2);
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .search-header {
+        margin-bottom: 20px;
     }
     
     .section-title {
-        margin-bottom: 25px;
-        color: #000;
         font-size: 24px;
-        font-weight: 700;
-        text-align: center;
+        margin-bottom: 20px;
     }
     
     .search-form {
-        display: flex;
-        gap: 15px;
-        max-width: 500px;
-        margin: 0 auto 30px;
-    }
-    
-    .search-input {
-        flex: 1;
-        padding: 12px 16px;
-        border: 2px solid #e0e0e0;
-        border-radius: 8px;
-        font-size: 16px;
-        transition: border-color 0.3s;
-    }
-    
-    .search-input:focus {
-        outline: none;
-        border-color: #cb5603;
-    }
-    
-    .search-button {
-        background: #cb5603;
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-    
-    .search-button:hover {
-        background: #a84502;
-    }
-    
-    .years-container {
-        display: flex;
         flex-direction: column;
-        gap: 40px;
     }
     
     .years-row {
-        display: flex;
-        justify-content: space-between;
-        gap: 30px;
-        position: relative;
-    }
-    
-    /* Изменение: разделительная линия после КАЖДОГО ряда, кроме последнего */
-    .years-row:not(:last-child)::after {
-        content: "";
-        position: absolute;
-        bottom: -20px;
-        left: 5%;
-        width: 90%;
-        height: 2px;
-        background: #cb5603;
+        flex-direction: column;
+        gap: 20px;
     }
     
     .year-card {
-        background: #f8f9fa;
-        padding: 50px 30px;
-        border-radius: 8px;
-        text-align: center;
-        transition: all 0.3s ease;
-        border: 1px solid #e0e0e0;
-        width: 30%;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        width: 100% !important;
+        padding: 40px 25px;
     }
     
-    .year-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-        background: #fff;
+    .add-year-card {
+        width: 100% !important;
+        padding: 40px 25px;
+    }
+    
+    .add-year-card-large {
+        padding: 20px 30px;
+        font-size: 18px;
+        min-width: 250px;
     }
     
     .year-title {
-        font-size: 26px;
-        font-weight: 700;
-        color: #000;
+        font-size: 22px;
     }
-    
-    .no-results {
-        text-align: center;
-        padding: 30px;
-        font-size: 18px;
-        color: #666;
-        display: none;
-    }
-    
-    .year-card.highlight {
-        background-color: #fff3e0;
-        border-color: #cb5603;
-        box-shadow: 0 4px 12px rgba(203, 86, 3, 0.2);
-    }
-    
-    .loading {
-        text-align: center;
-        padding: 20px;
-        display: none;
-    }
-    
-    @media (max-width: 768px) {
-        .search-form {
-            flex-direction: column;
-        }
-        
-        .years-row {
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .year-card {
-            width: 100%;
-            padding: 40px 25px;
-        }
-        
-        .year-title {
-            font-size: 22px;
-        }
 
-        /* На мобильных убираем разделительные линии */
-        .years-row::after {
-            display: none;
-        }
+    /* На мобильных убираем разделительные линии */
+    .years-row::after {
+        display: none;
     }
+    
+    /* Скрываем пустые карточки на мобильных */
+    .years-row div[style*="visibility: hidden"] {
+        display: none;
+    }
+    
+    .empty-state {
+        padding: 60px 20px;
+        margin: 20px 0;
+    }
+    
+    .empty-icon {
+        font-size: 60px;
+    }
+    
+    .empty-state h3 {
+        font-size: 24px;
+    }
+    
+    .empty-state p {
+        font-size: 16px;
+    }
+}
 </style>
 {% endblock %}
 
+<!-- JavaScript блок остается без изменений -->
 {% block extra_js %}
 <script>
+    // ... (JavaScript код остается точно таким же как в предыдущей версии)
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('searchInput');
         const searchButton = document.getElementById('searchButton');
@@ -245,21 +473,23 @@
             
             noResults.style.display = 'none';
             
+            // Создаем ряды по 3 элемента
             for (let i = 0; i < results.length; i += 3) {
                 const row = document.createElement('div');
                 row.className = 'years-row';
                 
+                // Добавляем карточки в ряд
                 for (let j = i; j < i + 3 && j < results.length; j++) {
                     const year = results[j];
                     const card = document.createElement('div');
                     card.className = 'year-card highlight';
                     card.setAttribute('data-year', year.year);
-                    card.style.cursor = 'pointer';
+                    card.style.cssText = 'position: relative; cursor: pointer; background: #f8f9fa; padding: 50px 30px; border-radius: 8px; text-align: center; transition: all 0.3s ease; border: 1px solid #e0e0e0; width: 30%; box-shadow: 0 4px 6px rgba(0,0,0,0.05);';
                     card.onclick = function() {
                         window.location.href = `/year/${year.id}/`;
                     };
                     card.innerHTML = `
-                        <div class="year-title">${year.year}</div>
+                        <div class="year-title" style="font-size: 26px; font-weight: 700; color: #000;">${year.year}</div>
                         <div style="margin-top: 10px; font-size: 14px; color: #666;">
                             ${year.classes_count || 0} классов
                         </div>
@@ -267,13 +497,82 @@
                     row.appendChild(card);
                 }
                 
+                // Добавляем пустые карточки для заполнения ряда
+                const remaining = 3 - (results.length - i);
+                for (let k = 0; k < remaining && k < 3; k++) {
+                    const emptyCard = document.createElement('div');
+                    emptyCard.style.cssText = 'width: 30%; visibility: hidden;';
+                    row.appendChild(emptyCard);
+                }
+                
                 yearsContainer.appendChild(row);
+                
+                // Добавляем разделительную линию, если это не последний ряд
+                if (i + 3 < results.length) {
+                    const line = document.createElement('div');
+                    line.style.cssText = 'position: relative;';
+                    line.innerHTML = '<div style="position: absolute; bottom: -20px; left: 5%; width: 90%; height: 2px; background: #cb5603;"></div>';
+                    yearsContainer.appendChild(line);
+                }
             }
+            
+            // Добавляем кнопку добавления в новый ряд после результатов поиска ТОЛЬКО если есть результаты
+            {% if user.is_authenticated %}
+            if (results.length > 0) {
+                const lastRow = yearsContainer.lastElementChild;
+                const cardsInLastRow = lastRow.querySelectorAll('.year-card').length;
+                
+                if (cardsInLastRow < 3) {
+                    // Есть место в последнем ряду - добавляем кнопку туда
+                    const addCard = document.createElement('div');
+                    addCard.className = 'add-year-card';
+                    addCard.onclick = function() {
+                        window.location.href = '{% url 'create_year' %}';
+                    };
+                    addCard.innerHTML = `
+                        <div class="add-card-content">
+                            <span class="add-card-icon">+</span>
+                            <span class="add-card-text">Добавить год</span>
+                        </div>
+                    `;
+                    lastRow.appendChild(addCard);
+                    
+                    // Добавляем пустые карточки для заполнения ряда
+                    const remaining = 2 - cardsInLastRow;
+                    for (let k = 0; k < remaining; k++) {
+                        const emptyCard = document.createElement('div');
+                        emptyCard.style.cssText = 'width: 30%; visibility: hidden;';
+                        lastRow.appendChild(emptyCard);
+                    }
+                } else {
+                    // Последний ряд полный - создаем новый ряд для кнопки
+                    const addRow = document.createElement('div');
+                    addRow.className = 'years-row';
+                    addRow.innerHTML = `
+                        <div class="add-year-card" onclick="location.href='{% url 'create_year' %}'">
+                            <div class="add-card-content">
+                                <span class="add-card-icon">+</span>
+                                <span class="add-card-text">Добавить год</span>
+                            </div>
+                        </div>
+                        <div style="width: 30%; visibility: hidden;"></div>
+                        <div style="width: 30%; visibility: hidden;"></div>
+                    `;
+                    yearsContainer.appendChild(addRow);
+                }
+            }
+            {% endif %}
         }
         
         function performClientSideSearch(searchTerm) {
             const yearCards = document.querySelectorAll('.year-card');
+            const addCards = document.querySelectorAll('.add-year-card');
             let found = false;
+            
+            // Скрываем кнопки добавления при поиске
+            addCards.forEach(card => {
+                card.style.display = 'none';
+            });
             
             yearCards.forEach(card => {
                 card.classList.remove('highlight');
@@ -303,14 +602,11 @@
             }
         });
 
-        // Добавляем возможность сброса поиска при клике на логотип или другие элементы
         document.addEventListener('click', function(event) {
-            // Если клик на логотип или ссылку "Главная", сбрасываем поиск
             if (event.target.closest('.logo') || 
                 (event.target.tagName === 'A' && event.target.getAttribute('href') === '/')) {
                 if (searchInput.value.trim() !== '') {
                     searchInput.value = '';
-                    // Не перезагружаем страницу сразу, даем пользователю возможность увидеть сброс
                     setTimeout(() => {
                         if (searchInput.value === '') {
                             location.reload();
@@ -320,9 +616,7 @@
             }
         });
 
-        // Обработка изменения размера окна для адаптивности
         window.addEventListener('resize', function() {
-            // При изменении размера окна пересчитываем отображение
             const currentSearch = searchInput.value.trim();
             if (currentSearch !== '') {
                 performClientSideSearch(currentSearch);

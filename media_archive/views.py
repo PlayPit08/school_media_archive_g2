@@ -9,11 +9,8 @@ from .forms import YearAlbumForm, SchoolClassForm, EventAlbumForm, PhotoUploadFo
 
 # Главная страница - показываем только одобренные учебные годы
 def home(request):
-    # Для админов показываем все годы, для остальных - только approved
-    if request.user.is_staff or request.user.is_superuser:
-        years = YearAlbum.objects.all().order_by('-year')
-    else:
-        years = YearAlbum.objects.filter(status='approved').order_by('-year')
+    # ВСЕМ пользователям показываем только approved годы
+    years = YearAlbum.objects.filter(status='approved').order_by('-year')
 
     # Группируем по 3 в ряд
     grouped_years = []
@@ -52,30 +49,40 @@ def search_years(request):
         'search_query': query
     })
 
-# Просмотр учебного года - показываем одобренные классы
+# Просмотр учебного года - показываем одобренные классы (СОРТИРОВКА ПО СОЗДАНИЮ - СТАРЫЕ СНАЧАЛА)
 def year_detail(request, year_id):
     year = get_object_or_404(YearAlbum, id=year_id, status='approved')
-    classes = year.classes.filter(status='approved').order_by('class_name')
+    classes = year.classes.filter(status='approved').order_by('created_at')  # Старые сначала
+    
+    # Группируем классы по 3 в ряду
+    classes_grouped = []
+    for i in range(0, len(classes), 3):
+        classes_grouped.append(classes[i:i + 3])
 
     return render(request, 'media_archive/year_detail.html', {
         'year': year,
-        'classes': classes
+        'classes': classes_grouped
     })
 
-# Просмотр событий в классе
+# Просмотр событий в классе (СОРТИРОВКА ПО СОЗДАНИЮ - СТАРЫЕ СНАЧАЛА)
 def class_detail(request, class_id):
     school_class = get_object_or_404(SchoolClass, id=class_id, status='approved')
-    events = school_class.events.filter(status='approved').order_by('-created_at')
+    events = school_class.events.filter(status='approved').order_by('created_at')  # Старые сначала
+    
+    # Группируем события по 3 в ряду
+    events_grouped = []
+    for i in range(0, len(events), 3):
+        events_grouped.append(events[i:i + 3])
 
     return render(request, 'media_archive/class_detail.html', {
         'school_class': school_class,
-        'events': events
+        'events': events_grouped
     })
 
-# Просмотр события - показываем одобренные фото
+# Просмотр события - показываем одобренные фото (СОРТИРОВКА ПО СОЗДАНИЮ - СТАРЫЕ СНАЧАЛА)
 def event_detail(request, event_id):
     event = get_object_or_404(EventAlbum, id=event_id, status='approved')
-    photos = event.photos.filter(status='approved').order_by('uploaded_at')  # Изменено с '-uploaded_at' на 'uploaded_at'
+    photos = event.photos.filter(status='approved').order_by('uploaded_at')  # Старые сначала
 
     return render(request, 'media_archive/event_detail.html', {
         'event': event,
@@ -203,7 +210,6 @@ def create_event(request):
         'next': request.META.get('HTTP_REFERER', 'profile')
     })
 
-
 @login_required
 def upload_photo(request):
     if request.method == 'POST':
@@ -275,12 +281,14 @@ def create_class_for_year(request, year_id):
             return redirect('year_detail', year_id=year_id)
     else:
         form = SchoolClassForm(initial={'year_album': year})
-        form.fields['year_album'].widget = forms.HiddenInput()  # Скрываем поле выбора
+    
+    # ВАЖНО: Всегда скрываем поле выбора года, даже при ошибках
+    form.fields['year_album'].widget = forms.HiddenInput()
 
     return render(request, 'media_archive/create_class.html', {
         'form': form,
         'year': year,
-        'predefined_year': True  # Важно: передаем флаг что год предопределен
+        'predefined_year': True
     })
 
 # Создание события для класса (с предвыбором)
@@ -306,12 +314,14 @@ def create_event_for_class(request, class_id):
             return redirect('class_detail', class_id=class_id)
     else:
         form = EventAlbumForm(initial={'school_class': school_class})
-        form.fields['school_class'].widget = forms.HiddenInput()  # Скрываем поле выбора
+    
+    # ВАЖНО: Всегда скрываем поле выбора класса, даже при ошибках
+    form.fields['school_class'].widget = forms.HiddenInput()
 
     return render(request, 'media_archive/create_event.html', {
         'form': form,
         'school_class': school_class,
-        'predefined_class': True  # Важно: передаем флаг что класс предопределен
+        'predefined_class': True
     })
 
 # Создание события для года (с предвыбором)
@@ -459,18 +469,18 @@ def delete_year(request, year_id):
     # Проверяем права: создатель или админ
     if year.created_by != request.user and not request.user.is_staff and not request.user.is_superuser:
         messages.error(request, 'У вас нет прав для удаления этого учебного года')
-        return redirect('profile')
+        return redirect('home')  # Изменено на home
     
     if request.method == 'POST':
         year_name = year.year
         year.delete()
         messages.success(request, f'Учебный год {year_name} удален!')
-        return redirect('profile')
+        return redirect('home')  # Изменено на home
     
     return render(request, 'media_archive/confirm_delete.html', {
         'object': year,
         'object_type': 'учебный год',
-        'back_url': 'profile'
+        'back_url': 'home'  # Изменено на home
     })
 
 # Удаление класса (только создатель или админ)

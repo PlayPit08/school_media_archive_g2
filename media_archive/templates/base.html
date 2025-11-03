@@ -107,6 +107,103 @@
             background: #e0a800;
         }
 
+
+        .add-btn {
+            background: #cb5603;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            font-family: inherit;
+        }
+
+        .add-btn-large {
+            padding: 20px 40px;
+            font-size: 20px;
+            box-shadow: 0 6px 20px rgba(203, 86, 3, 0.3);
+        }
+
+        .add-btn-small {
+            padding: 12px 24px;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(203, 86, 3, 0.2);
+        }
+
+        .add-btn:hover {
+            background: #a84502;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(203, 86, 3, 0.4);
+        }
+
+        .add-btn-icon {
+            font-size: 1.2em;
+        }
+
+        .add-button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        /* Стили для пустых состояний */
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            margin: 40px 0;
+        }
+
+        .empty-icon {
+            font-size: 80px;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        .empty-state h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 18px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .add-btn-large {
+                padding: 18px 32px;
+                font-size: 18px;
+            }
+            
+            .empty-state {
+                padding: 60px 20px;
+                margin: 20px 0;
+            }
+            
+            .empty-icon {
+                font-size: 60px;
+            }
+            
+            .empty-state h3 {
+                font-size: 24px;
+            }
+            
+            .empty-state p {
+                font-size: 16px;
+            }
+        }
+
         /* Стили для форм регистрации и входа */
         .auth-container {
             max-width: 400px;
@@ -292,6 +389,7 @@
             padding: 40px 0;
         }
 
+        /* ЗАГОЛОВКИ ДЛЯ СТРАНИЦ ПРОСМОТРА - ПО ЦЕНТРУ */
         .page-title {
             text-align: center;
             margin-bottom: 40px;
@@ -308,6 +406,29 @@
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: #cb5603;
+            border-radius: 2px;
+        }
+
+        /* ЗАГОЛОВКИ ДЛЯ ФОРМ СОЗДАНИЯ - СЛЕВА */
+        .form-page-title {
+            text-align: left;
+            margin-bottom: 40px;
+            color: #000;
+            font-size: 32px;
+            font-weight: 700;
+            position: relative;
+            padding-bottom: 15px;
+            flex: 1;
+        }
+
+        .form-page-title::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
             width: 100px;
             height: 4px;
             background: #cb5603;
@@ -346,6 +467,25 @@
             background: #fff3cd;
             color: #856404;
             border: 1px solid #ffeaa7;
+        }
+
+        /* Универсальные стили для кнопок удаления */
+        .delete-btn {
+            transition: all 0.3s ease !important;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .delete-btn:hover {
+            background: rgba(220, 53, 69, 1) !important;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        /* Плавные переходы для карточек */
+        .year-card, .class-card, .event-card, .photo-thumbnail {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         @media (max-width: 768px) {
@@ -482,6 +622,43 @@
                 if (e.key === 'Escape' && modal.style.display === 'flex') {
                     modal.style.display = 'none';
                 }
+            });
+
+            // Универсальный скрипт для показа кнопок удаления при наведении
+            const cards = document.querySelectorAll('.year-card, .class-card, .event-card, .photo-thumbnail');
+            
+            cards.forEach(function(card) {
+                card.addEventListener('mouseenter', function() {
+                    if (card.classList.contains('year-card') || card.classList.contains('class-card') || card.classList.contains('event-card')) {
+                        this.style.transform = 'translateY(-5px)';
+                        this.style.boxShadow = '0 8px 20px rgba(0,0,0,0.15)';
+                    } else {
+                        this.style.transform = 'translateY(-2px)';
+                        this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                    }
+                    
+                    // Показываем кнопку удаления
+                    var deleteBtn = this.querySelector('.delete-btn');
+                    if (deleteBtn) {
+                        deleteBtn.style.opacity = '1';
+                    }
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    if (card.classList.contains('year-card') || card.classList.contains('class-card') || card.classList.contains('event-card')) {
+                        this.style.transform = 'translateY(0)';
+                        this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.08)';
+                    } else {
+                        this.style.transform = 'translateY(0)';
+                        this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                    }
+                    
+                    // Скрываем кнопку удаления
+                    var deleteBtn = this.querySelector('.delete-btn');
+                    if (deleteBtn) {
+                        deleteBtn.style.opacity = '0';
+                    }
+                });
             });
         });
 

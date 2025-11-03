@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block title %}Создание учебного года - Фотоархив школы №2086{% endblock %}
 
@@ -6,13 +6,13 @@
 <div style="max-width: 600px; margin: 0 auto;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <h1 class="page-title" style="margin-bottom: 0;">Создание учебного года</h1>
-        <a href="{% url 'profile' %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+        <a href="{% url 'home' %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
             ← Назад
         </a>
     </div>
 
     <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
-        <form method="post" id="createYearForm">
+        <form method="post">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ next }}">
 
@@ -38,43 +38,12 @@
                     {{ form.year.errors }}
                 </div>
                 {% endif %}
-                <div style="color: #666; font-size: 12px; margin-top: 5px;">
-                    Например: 2023-2024
-                </div>
             </div>
 
-            <button type="button" onclick="confirmCreateYear()" style="background: #cb5603; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; transition: all 0.3s;">
-                📅 Создать учебный год
+            <button type="submit" style="background: #cb5603; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; transition: all 0.3s;">
+                📝 Создать учебный год
             </button>
         </form>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-function confirmCreateYear() {
-    const yearInput = document.querySelector('#id_year');
-    const yearValue = yearInput.value.trim();
-
-    if (!yearValue) {
-        showConfirmationModal(
-            'Ошибка',
-            'Пожалуйста, введите учебный год',
-            '❌',
-            null
-        );
-        return;
-    }
-
-    showConfirmationModal(
-        'Создание учебного года',
-        `Вы уверены, что хотите создать учебный год "${yearValue}"?\n\nПосле создания год будет отправлен на модерацию.`,
-        '📅',
-        function() {
-            document.getElementById('createYearForm').submit();
-        }
-    );
-}
-</script>
 {% endblock %}

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 class YearAlbum(models.Model):
     STATUS_CHOICES = [
@@ -29,9 +30,37 @@ class YearAlbum(models.Model):
         verbose_name = 'Учебный год'
         verbose_name_plural = 'Учебные годы'
         ordering = ['-year']
+        # Добавляем уникальность года
+        constraints = [
+            models.UniqueConstraint(
+                fields=['year'],
+                name='unique_year',
+                condition=models.Q(status='approved')  # Уникальность только для approved
+            )
+        ]
+
+    def clean(self):
+        # Проверяем уникальность при создании/изменении
+        if self.status == 'approved':
+            existing = YearAlbum.objects.filter(
+                year=self.year, 
+                status='approved'
+            ).exclude(pk=self.pk)
+            if existing.exists():
+                raise ValidationError({'year': 'Учебный год с таким названием уже существует и одобрен'})
+
+    def save(self, *args, **kwargs):
+        # Вызываем clean() перед сохранением
+        self.clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.year
+
+    @property
+    def approved_classes_count(self):
+        """Количество одобренных классов в году"""
+        return self.classes.filter(status='approved').count()
 
 class SchoolClass(models.Model):
     STATUS_CHOICES = [
@@ -67,6 +96,32 @@ class SchoolClass(models.Model):
         verbose_name = 'Класс'
         verbose_name_plural = 'Классы'
         ordering = ['class_name']
+        # Добавляем уникальность класса в рамках года
+        constraints = [
+            models.UniqueConstraint(
+                fields=['class_name', 'year_album'],
+                name='unique_class_in_year',
+                condition=models.Q(status='approved')  # Уникальность только для approved
+            )
+        ]
+
+    def clean(self):
+        # Проверяем уникальность при создании/изменении
+        if self.status == 'approved':
+            existing = SchoolClass.objects.filter(
+                class_name=self.class_name,
+                year_album=self.year_album,
+                status='approved'
+            ).exclude(pk=self.pk)
+            if existing.exists():
+                raise ValidationError({
+                    'class_name': f'Класс с названием "{self.class_name}" уже существует в учебном году {self.year_album.year}'
+                })
+
+    def save(self, *args, **kwargs):
+        # Вызываем clean() перед сохранением
+        self.clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.class_name} ({self.year_album.year})"
@@ -113,6 +168,32 @@ class EventAlbum(models.Model):
         verbose_name = 'Событие'
         verbose_name_plural = 'События'
         ordering = ['-created_at']
+        # Добавляем уникальность события в рамках класса
+        constraints = [
+            models.UniqueConstraint(
+                fields=['title', 'school_class'],
+                name='unique_event_in_class',
+                condition=models.Q(status='approved')  # Уникальность только для approved
+            )
+        ]
+
+    def clean(self):
+        # Проверяем уникальность при создании/изменении
+        if self.status == 'approved':
+            existing = EventAlbum.objects.filter(
+                title=self.title,
+                school_class=self.school_class,
+                status='approved'
+            ).exclude(pk=self.pk)
+            if existing.exists():
+                raise ValidationError({
+                    'title': f'Событие с названием "{self.title}" уже существует в классе {self.school_class.class_name}'
+                })
+
+    def save(self, *args, **kwargs):
+        # Вызываем clean() перед сохранением
+        self.clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
@@ -162,3 +243,13 @@ class Photo(models.Model):
 
     def __str__(self):
         return f"Фото {self.id} - {self.event_album.title}"
+
+    @property
+    def is_approved(self):
+        """Проверяет, одобрена ли фотография"""
+        return self.status == 'approved'
+
+    @property
+    def is_pending(self):
+        """Проверяет, находится ли фотография на модерации"""
+        return self.status == 'pending'
