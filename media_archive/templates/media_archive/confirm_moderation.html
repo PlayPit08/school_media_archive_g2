@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block title %}Подтверждение модерации - Фотоархив школы №2086{% endblock %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 0 auto;">
+    <div style="text-align: center; margin-bottom: 30px;">
+        {% if action == 'approve' %}
+        <h1 class="page-title" style="color: #333;">Подтверждение одобрения</h1>
+        {% else %}
+        <h1 class="page-title" style="color: #333;">Подтверждение отклонения</h1>
+        {% endif %}
+    </div>
+
+    <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); text-align: center;">
+        {% if action == 'approve' %}
+        <h3 style="color: #333; margin-bottom: 15px;">Вы уверены, что хотите одобрить {{ object_type }}?</h3>
+        {% else %}
+        <h3 style="color: #333; margin-bottom: 15px;">Вы уверены, что хотите отклонить {{ object_type }}?</h3>
+        {% endif %}
+        
+        <div style="margin-bottom: 20px;">
+            {% if object_type_eng == 'photo' and object_details.image_url %}
+            <div style="margin-bottom: 15px;">
+                <div style="position: relative; display: inline-block;">
+                    <img src="{{ object_details.image_url }}" 
+                         alt="Предпросмотр" 
+                         style="width: 200px; height: 150px; object-fit: cover; border-radius: 6px; cursor: pointer; transition: all 0.3s ease;"
+                         onclick="openPhotoPreview('{{ object_details.image_url }}')"
+                         onmouseover="this.style.transform='scale(1.05)'"
+                         onmouseout="this.style.transform='scale(1)'">
+                    <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px;">
+                        🔍 Просмотр
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <strong style="display: block; margin-bottom: 15px; font-size: 18px;">{{ object_name }}</strong>
+            
+            <div style="color: #666; font-size: 14px; text-align: center;">
+                {% if object_type_eng == 'year' %}
+                    <div>Создано: {{ object_details.created_by }} • {{ object_details.created_at }}</div>
+                {% elif object_type_eng == 'class' %}
+                    <div>Учебный год: {{ object_details.year }}</div>
+                    <div>Создано: {{ object_details.created_by }} • {{ object_details.created_at }}</div>
+                {% elif object_type_eng == 'event' %}
+                    <div>Класс: {{ object_details.class_name }}</div>
+                    <div>Создано: {{ object_details.created_by }} • {{ object_details.created_at }}</div>
+                {% elif object_type_eng == 'photo' %}
+                    <!-- Убрана вся информация кроме названия -->
+                {% endif %}
+            </div>
+        </div>
+
+        {% if action == 'approve' %}
+        <p style="color: #666; margin-bottom: 25px;">
+            Это действие сделает {{ object_type }} видимым для всех пользователей.
+        </p>
+        {% else %}
+        <p style="color: #666; margin-bottom: 25px;">
+            Это действие скроет {{ object_type }} от пользователей.
+        </p>
+        {% endif %}
+
+        <form method="post" action="{% url 'process_moderation' %}" style="display: flex; gap: 15px; justify-content: center;">
+            {% csrf_token %}
+            <input type="hidden" name="object_type" value="{{ object_type_eng }}">
+            <input type="hidden" name="object_id" value="{{ object_id }}">
+            <input type="hidden" name="action" value="{{ action }}">
+            {% if action == 'approve' %}
+            <button type="submit" style="background: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px;">
+                Да, одобрить
+            </button>
+            {% else %}
+            <button type="submit" style="background: #dc3545; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px;">
+                Да, отклонить
+            </button>
+            {% endif %}
+            <a href="{% url 'moderation_dashboard' %}" 
+               style="background: #6c757d; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; display: inline-block; font-size: 16px;">
+                Отмена
+            </a>
+        </form>
+    </div>
+</div>
+
+<!-- PhotoSwipe для просмотра фото -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="pswp__bg"></div>
+    <div class="pswp__scroll-wrap">
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Данные для PhotoSwipe
+var moderationConfirmPhotoSwipeItems = [
+    {% if object_type_eng == 'photo' and object_details.image_url %}
+    {
+        src: "{{ object_details.image_url }}",
+        w: 0,
+        h: 0
+    }
+    {% endif %}
+];
+
+// Функция для получения реальных размеров изображения
+function getImageSize(src) {
+    return new Promise(function(resolve, reject) {
+        var img = new Image();
+        img.onload = function() {
+            resolve({
+                width: this.naturalWidth,
+                height: this.naturalHeight
+            });
+        };
+        img.onerror = reject;
+        img.src = src;
+    });
+}
+
+// Открытие фото в полноэкранном просмотре
+function openPhotoPreview() {
+    var pswpElement = document.querySelectorAll('.pswp')[0];
+
+    var options = {
+        index: 0,
+        bgOpacity: 0.9,
+        showHideOpacity: true,
+        closeOnScroll: false,
+        history: false,
+        shareEl: false,
+        fullscreenEl: true,
+        zoomEl: true,
+        maxSpreadZoom: 3,
+        getDoubleTapZoom: function(isMouseClick, item) {
+            return item.initialZoomLevel < 0.7 ? 1 : 1.5;
+        },
+        imageClickAction: 'zoom',
+        tapToToggleControls: true,
+        pinchToClose: false,
+        // Отключаем отображение заголовков
+        addCaptionHTMLFn: function(item, captionEl) {
+            return false;
+        }
+    };
+
+    var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, moderationConfirmPhotoSwipeItems, options);
+
+    gallery.listen('gettingData', function(index, item) {
+        if (item.w < 1 || item.h < 1) {
+            getImageSize(item.src).then(function(size) {
+                item.w = size.width;
+                item.h = size.height;
+                gallery.invalidateCurrItems();
+                gallery.updateSize(true);
+            }).catch(function() {
+                item.w = 1200;
+                item.h = 800;
+                gallery.invalidateCurrItems();
+                gallery.updateSize(true);
+            });
+        }
+    });
+
+    gallery.init();
+}
+</script>
+
+<style>
+/* Улучшаем качество изображений в PhotoSwipe */
+.pswp__img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* Скрываем заголовки в PhotoSwipe */
+.pswp__caption {
+    display: none !important;
+}
+
+/* Убираем подскакивание для всех элементов в header */
+header * {
+    transform: none !important;
+    transition: none !important;
+}
+
+/* Убираем подскакивание для кнопок в форме */
+form button, form a {
+    transform: none !important;
+    transition: none !important;
+}
+
+form button:hover, form a:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+</style>
+{% endblock %}

@@ -623,99 +623,122 @@ def moderation_dashboard(request):
     })
 
 @login_required
-def approve_year(request, year_id):
+def confirm_moderation(request, action, object_type, object_id):
+    """Страница подтверждения для модерации"""
     if not request.user.is_staff and not request.user.is_superuser:
         messages.error(request, 'У вас нет прав для модерации')
         return redirect('home')
+    
+    # Словарь для перевода типов объектов
+    type_names = {
+        'year': 'учебный год',
+        'class': 'класс', 
+        'event': 'событие',
+        'photo': 'фотографию'
+    }
+    
+    # Получаем объект в зависимости от типа
+    if object_type == 'year':
+        obj = get_object_or_404(YearAlbum, id=object_id)
+        object_name = obj.year
+        object_details = {
+            'created_by': obj.created_by.username,
+            'created_at': obj.created_at.strftime("%d.%m.%Y"),
+        }
+    elif object_type == 'class':
+        obj = get_object_or_404(SchoolClass, id=object_id)
+        object_name = obj.class_name
+        object_details = {
+            'year': obj.year_album.year,
+            'created_by': obj.created_by.username,
+            'created_at': obj.created_at.strftime("%d.%m.%Y"),
+        }
+    elif object_type == 'event':
+        obj = get_object_or_404(EventAlbum, id=object_id)
+        object_name = obj.title
+        object_details = {
+            'class_name': obj.school_class.class_name,
+            'created_by': obj.created_by.username,
+            'created_at': obj.created_at.strftime("%d.%m.%Y"),
+        }
+    elif object_type == 'photo':
+        obj = get_object_or_404(Photo, id=object_id)
+        object_name = f"Фото #{obj.id}"
+        object_details = {
+            'event_title': obj.event_album.title,
+            'uploaded_by': obj.uploaded_by.username,
+            'uploaded_at': obj.uploaded_at.strftime("%d.%m.%Y"),
+            'image_url': obj.image.url if obj.image else None,
+        }
+    else:
+        return redirect('moderation_dashboard')
 
-    year = get_object_or_404(YearAlbum, id=year_id)
-    year.status = 'approved'
-    year.save()
-    messages.success(request, f'Учебный год {year.year} одобрен!')
-    return redirect('moderation_dashboard')
+    context = {
+        'action': action,
+        'object_type': type_names[object_type],  # Передаем русское название
+        'object_type_eng': object_type,  # Передаем английское название для условий
+        'object_id': object_id,  # Передаем ID объекта
+        'object_name': object_name,
+        'object_details': object_details,
+    }
+    return render(request, 'media_archive/confirm_moderation.html', context)
 
 @login_required
-def reject_year(request, year_id):
+def process_moderation(request):
+    """Обработка действия модерации после подтверждения"""
     if not request.user.is_staff and not request.user.is_superuser:
         messages.error(request, 'У вас нет прав для модерации')
         return redirect('home')
-
-    year = get_object_or_404(YearAlbum, id=year_id)
-    year.status = 'rejected'
-    year.save()
-    messages.success(request, f'Учебный год {year.year} отклонен!')
-    return redirect('moderation_dashboard')
-
-@login_required
-def approve_class(request, class_id):
-    if not request.user.is_staff and not request.user.is_superuser:
-        messages.error(request, 'У вас нет прав для модерации')
-        return redirect('home')
-
-    school_class = get_object_or_404(SchoolClass, id=class_id)
-    school_class.status = 'approved'
-    school_class.save()
-    messages.success(request, f'Класс {school_class.class_name} одобрен!')
-    return redirect('moderation_dashboard')
-
-@login_required
-def reject_class(request, class_id):
-    if not request.user.is_staff and not request.user.is_superuser:
-        messages.error(request, 'У вас нет прав для модерации')
-        return redirect('home')
-
-    school_class = get_object_or_404(SchoolClass, id=class_id)
-    school_class.status = 'rejected'
-    school_class.save()
-    messages.success(request, f'Класс {school_class.class_name} отклонен!')
-    return redirect('moderation_dashboard')
-
-@login_required
-def approve_event(request, event_id):
-    if not request.user.is_staff and not request.user.is_superuser:
-        messages.error(request, 'У вас нет прав для модерации')
-        return redirect('home')
-
-    event = get_object_or_404(EventAlbum, id=event_id)
-    event.status = 'approved'
-    event.save()
-    messages.success(request, f'Событие "{event.title}" одобрено!')
-    return redirect('moderation_dashboard')
-
-@login_required
-def reject_event(request, event_id):
-    if not request.user.is_staff and not request.user.is_superuser:
-        messages.error(request, 'У вас нет прав для модерации')
-        return redirect('home')
-
-    event = get_object_or_404(EventAlbum, id=event_id)
-    event.status = 'rejected'
-    event.save()
-    messages.success(request, f'Событие "{event.title}" отклонено!')
-    return redirect('moderation_dashboard')
-
-@login_required
-def approve_photo(request, photo_id):
-    if not request.user.is_staff and not request.user.is_superuser:
-        messages.error(request, 'У вас нет прав для модерации')
-        return redirect('home')
-
-    photo = get_object_or_404(Photo, id=photo_id)
-    photo.status = 'approved'
-    photo.save()
-    messages.success(request, 'Фото одобрено!')
-    return redirect('moderation_dashboard')
-
-@login_required
-def reject_photo(request, photo_id):
-    if not request.user.is_staff and not request.user.is_superuser:
-        messages.error(request, 'У вас нет прав для модерации')
-        return redirect('home')
-
-    photo = get_object_or_404(Photo, id=photo_id)
-    photo.status = 'rejected'
-    photo.save()
-    messages.success(request, 'Фото отклонено!')
+    
+    if request.method != 'POST':
+        return redirect('moderation_dashboard')
+    
+    # Получаем параметры из POST-запроса
+    object_type = request.POST.get('object_type')
+    object_id = request.POST.get('object_id')
+    action = request.POST.get('action')
+    
+    if not object_type or not object_id or not action:
+        messages.error(request, 'Неверные параметры запроса')
+        return redirect('moderation_dashboard')
+    
+    try:
+        object_id = int(object_id)
+    except (ValueError, TypeError):
+        messages.error(request, 'Неверный ID объекта')
+        return redirect('moderation_dashboard')
+    
+    if object_type == 'year':
+        obj = get_object_or_404(YearAlbum, id=object_id)
+        obj.status = 'approved' if action == 'approve' else 'rejected'
+        obj.save()
+        action_text = 'одобрен' if action == 'approve' else 'отклонен'
+        messages.success(request, f'Учебный год "{obj.year}" {action_text}!')
+        
+    elif object_type == 'class':
+        obj = get_object_or_404(SchoolClass, id=object_id)
+        obj.status = 'approved' if action == 'approve' else 'rejected'
+        obj.save()
+        action_text = 'одобрен' if action == 'approve' else 'отклонен'
+        messages.success(request, f'Класс "{obj.class_name}" {action_text}!')
+        
+    elif object_type == 'event':
+        obj = get_object_or_404(EventAlbum, id=object_id)
+        obj.status = 'approved' if action == 'approve' else 'rejected'
+        obj.save()
+        action_text = 'одобрено' if action == 'approve' else 'отклонено'
+        messages.success(request, f'Событие "{obj.title}" {action_text}!')
+        
+    elif object_type == 'photo':
+        obj = get_object_or_404(Photo, id=object_id)
+        obj.status = 'approved' if action == 'approve' else 'rejected'
+        obj.save()
+        action_text = 'одобрено' if action == 'approve' else 'отклонено'
+        messages.success(request, f'Фото #{obj.id} {action_text}!')
+    else:
+        messages.error(request, 'Неизвестный тип объекта')
+        return redirect('moderation_dashboard')
+    
     return redirect('moderation_dashboard')
 
 # Функция для отладки (можно удалить после тестирования)

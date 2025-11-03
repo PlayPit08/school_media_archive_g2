@@ -45,14 +45,14 @@
                     </p>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <button onclick="confirmApprove('year', {{ year.id }}, '{{ year.year }}')"
-                            style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                    <a href="{% url 'confirm_moderation' 'approve' 'year' year.id %}"
+                       style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; text-decoration: none; display: inline-block; transition: all 0.3s;">
                         ✅ Одобрить
-                    </button>
-                    <button onclick="confirmReject('year', {{ year.id }}, '{{ year.year }}')"
-                            style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                    </a>
+                    <a href="{% url 'confirm_moderation' 'reject' 'year' year.id %}"
+                       style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; text-decoration: none; display: inline-block; transition: all 0.3s;">
                         ❌ Отклонить
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -75,14 +75,14 @@
                     </p>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <button onclick="confirmApprove('class', {{ class.id }}, '{{ class.class_name }}')"
-                            style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                    <a href="{% url 'confirm_moderation' 'approve' 'class' class.id %}"
+                       style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; text-decoration: none; display: inline-block; transition: all 0.3s;">
                         ✅ Одобрить
-                    </button>
-                    <button onclick="confirmReject('class', {{ class.id }}, '{{ class.class_name }}')"
-                            style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                    </a>
+                    <a href="{% url 'confirm_moderation' 'reject' 'class' class.id %}"
+                       style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; text-decoration: none; display: inline-block; transition: all 0.3s;">
                         ❌ Отклонить
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -106,14 +106,14 @@
                     </p>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <button onclick="confirmApprove('event', {{ event.id }}, '{{ event.title }}')"
-                            style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                    <a href="{% url 'confirm_moderation' 'approve' 'event' event.id %}"
+                       style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; text-decoration: none; display: inline-block; transition: all 0.3s;">
                         ✅ Одобрить
-                    </button>
-                    <button onclick="confirmReject('event', {{ event.id }}, '{{ event.title }}')"
-                            style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                    </a>
+                    <a href="{% url 'confirm_moderation' 'reject' 'event' event.id %}"
+                       style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; text-decoration: none; display: inline-block; transition: all 0.3s;">
                         ❌ Отклонить
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -152,14 +152,14 @@
                     </div>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <button onclick="confirmApprove('photo', {{ photo.id }}, 'Фото #{{ photo.id }}')"
-                            style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                    <a href="{% url 'confirm_moderation' 'approve' 'photo' photo.id %}"
+                       style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; text-decoration: none; display: inline-block; transition: all 0.3s;">
                         ✅ Одобрить
-                    </button>
-                    <button onclick="confirmReject('photo', {{ photo.id }}, 'Фото #{{ photo.id }}')"
-                            style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                    </a>
+                    <a href="{% url 'confirm_moderation' 'reject' 'photo' photo.id %}"
+                       style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; text-decoration: none; display: inline-block; transition: all 0.3s;">
                         ❌ Отклонить
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -351,69 +351,45 @@ function showModerationDownloadNotification(gallery) {
     }
 }
 
-// Функции для подтверждения действий
-function confirmApprove(type, id, name) {
-    const typeNames = {
-        'year': 'учебный год',
-        'class': 'класс',
-        'event': 'событие',
-        'photo': 'фото'
-    };
-
-    if (confirm(`Вы уверены, что хотите ОДОБРИТЬ "${name}"?\n\nЭто действие сделает ${typeNames[type]} видимым для всех пользователей.`)) {
-        window.location.href = `/moderation/${type}/${id}/approve/`;
-    }
-}
-
-function confirmReject(type, id, name) {
-    const typeNames = {
-        'year': 'учебный год',
-        'class': 'класс',
-        'event': 'событие',
-        'photo': 'фото'
-    };
-
-    if (confirm(`Вы уверены, что хотите ОТКЛОНИТЬ "${name}"?\n\nЭто действие скроет ${typeNames[type]} от пользователей.`)) {
-        window.location.href = `/moderation/${type}/${id}/reject/`;
-    }
-}
-
-// Добавляем обработчики для клавиш
+// Добавляем обработчики для кнопок модерации
 document.addEventListener('DOMContentLoaded', function() {
-    const buttons = document.querySelectorAll('button');
-    buttons.forEach(button => {
-        if (button.textContent.includes('✅')) {
-            button.addEventListener('mouseenter', function() {
-                this.style.transform = 'scale(1.05)';
-                this.style.transition = 'all 0.2s';
-            });
-            button.addEventListener('mouseleave', function() {
-                this.style.transform = 'scale(1)';
-            });
-        }
-        if (button.textContent.includes('❌')) {
-            button.addEventListener('mouseenter', function() {
-                this.style.transform = 'scale(1.05)';
-                this.style.transition = 'all 0.2s';
-            });
-            button.addEventListener('mouseleave', function() {
-                this.style.transform = 'scale(1)';
-            });
-        }
+    const approveButtons = document.querySelectorAll('a[href*="approve"]');
+    const rejectButtons = document.querySelectorAll('a[href*="reject"]');
+    
+    approveButtons.forEach(button => {
+        button.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.05)';
+            this.style.boxShadow = '0 2px 8px rgba(40, 167, 69, 0.3)';
+        });
+        button.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+            this.style.boxShadow = 'none';
+        });
+    });
+    
+    rejectButtons.forEach(button => {
+        button.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.05)';
+            this.style.boxShadow = '0 2px 8px rgba(220, 53, 69, 0.3)';
+        });
+        button.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+            this.style.boxShadow = 'none';
+        });
     });
 });
 </script>
 
 <style>
 /* Дополнительные стили для кнопок модерации */
-button[onclick*="confirmApprove"]:hover {
+a[href*="approve"]:hover {
     background: #218838 !important;
-    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    transform: scale(1.05);
 }
 
-button[onclick*="confirmReject"]:hover {
+a[href*="reject"]:hover {
     background: #c82333 !important;
-    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    transform: scale(1.05);
 }
 
 /* Улучшаем качество изображений в PhotoSwipe */
@@ -436,6 +412,13 @@ button[onclick*="confirmReject"]:hover {
 
     .moderation-actions {
         justify-content: center;
+    }
+    
+    /* Адаптивность для кнопок */
+    a[href*="approve"], 
+    a[href*="reject"] {
+        padding: 10px 14px !important;
+        font-size: 13px !important;
     }
 }
 </style>

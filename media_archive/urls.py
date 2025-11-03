@@ -33,15 +33,9 @@ urlpatterns = [
 
     # Модерация
     path('moderation/', views.moderation_dashboard, name='moderation_dashboard'),
-    path('moderation/year/<int:year_id>/approve/', views.approve_year, name='approve_year'),
-    path('moderation/year/<int:year_id>/reject/', views.reject_year, name='reject_year'),
-    path('moderation/class/<int:class_id>/approve/', views.approve_class, name='approve_class'),
-    path('moderation/class/<int:class_id>/reject/', views.reject_class, name='reject_class'),
-    path('moderation/event/<int:event_id>/approve/', views.approve_event, name='approve_event'),
-    path('moderation/event/<int:event_id>/reject/', views.reject_event, name='reject_event'),
-    path('moderation/photo/<int:photo_id>/approve/', views.approve_photo, name='approve_photo'),
-    path('moderation/photo/<int:photo_id>/reject/', views.reject_photo, name='reject_photo'),
-    
+    path('moderation/confirm/<str:action>/<str:object_type>/<int:object_id>/', views.confirm_moderation, name='confirm_moderation'),
+    path('moderation/process/', views.process_moderation, name='process_moderation'),
+
     # Удаление
     path('year/<int:year_id>/delete/', views.delete_year, name='delete_year'),
     path('class/<int:class_id>/delete/', views.delete_class, name='delete_class'),

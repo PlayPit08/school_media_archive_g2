@@ -40,7 +40,14 @@
                 <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
                     Выберите событие:
                 </label>
-                {{ form.event_album }}
+                <select name="event_album" id="id_event_album" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 16px;">
+                    <option value="">---------</option>
+                    {% for event in form.event_album.field.queryset %}
+                    <option value="{{ event.id }}">
+                        {{ event.title }} ({{ event.school_class.class_name }}, {{ event.school_class.year_album.year }})
+                    </option>
+                    {% endfor %}
+                </select>
                 {% if form.event_album.errors %}
                 <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
                     {{ form.event_album.errors }}
@@ -50,6 +57,16 @@
             {% else %}
             <!-- Скрытое поле для предопределенного события -->
             {{ form.event_album }}
+            
+            <!-- Информация о предопределенном событии -->
+            <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #cb5603;">
+                <div style="font-weight: 600; color: #333; margin-bottom: 5px;">Загрузка фотографий в событие:</div>
+                <div style="color: #666; font-size: 14px;">
+                    <strong>{{ event.title }}</strong><br>
+                    Класс: {{ event.school_class.class_name }} • 
+                    Учебный год: {{ event.school_class.year_album.year }}
+                </div>
+            </div>
             {% endif %}
 
             <div style="margin-bottom: 20px;">
@@ -164,7 +181,7 @@ function confirmUploadPhotos() {
     // Определяем текст события в зависимости от контекста
     let eventText;
     {% if predefined_event %}
-        eventText = "{{ event.title }} ({{ event.school_class.class_name }})";
+        eventText = "{{ event.title }} ({{ event.school_class.class_name }}, {{ event.school_class.year_album.year }})";
     {% else %}
         if (eventSelect.value === '') {
             showConfirmationModal(
@@ -175,6 +192,7 @@ function confirmUploadPhotos() {
             );
             return;
         }
+        // Берем текст напрямую из выбранной опции
         eventText = eventSelect.options[eventSelect.selectedIndex].text;
     {% endif %}
 
