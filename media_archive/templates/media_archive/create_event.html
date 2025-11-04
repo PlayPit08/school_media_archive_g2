@@ -50,12 +50,9 @@
                     {{ form.title.errors }}
                 </div>
                 {% endif %}
-                <div style="color: #666; font-size: 12px; margin-top: 5px;">
-                    Например: Первый звонок, Выпускной вечер
-                </div>
             </div>
 
-            
+            {% if not predefined_class %}
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
                     Класс:
@@ -68,7 +65,6 @@
                 {% endif %}
             </div>
             {% else %}
-        
             {{ form.school_class }}
             {% endif %}
 
@@ -76,7 +72,6 @@
                 📝 Создать событие
             </button>
 
-            
             {% if predefined_class %}
             <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; text-align: center; color: #666; font-size: 14px;">
                 Создается для класса: <strong>{{ school_class.class_name }}</strong> •
