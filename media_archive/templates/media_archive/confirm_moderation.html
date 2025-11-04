@@ -48,7 +48,6 @@
                     <div>Класс: {{ object_details.class_name }}</div>
                     <div>Создано: {{ object_details.created_by }} • {{ object_details.created_at }}</div>
                 {% elif object_type_eng == 'photo' %}
-                    <!-- Убрана вся информация кроме названия -->
                 {% endif %}
             </div>
         </div>
@@ -85,7 +84,7 @@
     </div>
 </div>
 
-<!-- PhotoSwipe для просмотра фото -->
+
 <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="pswp__bg"></div>
     <div class="pswp__scroll-wrap">
@@ -124,7 +123,6 @@
 
 {% block extra_js %}
 <script>
-// Данные для PhotoSwipe
 var moderationConfirmPhotoSwipeItems = [
     {% if object_type_eng == 'photo' and object_details.image_url %}
     {
@@ -150,7 +148,6 @@ function getImageSize(src) {
     });
 }
 
-// Открытие фото в полноэкранном просмотре
 function openPhotoPreview() {
     var pswpElement = document.querySelectorAll('.pswp')[0];
 
@@ -170,7 +167,6 @@ function openPhotoPreview() {
         imageClickAction: 'zoom',
         tapToToggleControls: true,
         pinchToClose: false,
-        // Отключаем отображение заголовков
         addCaptionHTMLFn: function(item, captionEl) {
             return false;
         }
@@ -199,24 +195,23 @@ function openPhotoPreview() {
 </script>
 
 <style>
-/* Улучшаем качество изображений в PhotoSwipe */
+
 .pswp__img {
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
 }
 
-/* Скрываем заголовки в PhotoSwipe */
+
 .pswp__caption {
     display: none !important;
 }
 
-/* Убираем подскакивание для всех элементов в header */
+
 header * {
     transform: none !important;
     transition: none !important;
 }
 
-/* Убираем подскакивание для кнопок в форме */
 form button, form a {
     transform: none !important;
     transition: none !important;

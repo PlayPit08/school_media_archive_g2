@@ -52,7 +52,6 @@
                 {% endif %}
             </div>
 
-            <!-- Поле выбора года показываем ТОЛЬКО если НЕ predefined_year -->
             {% if not predefined_year %}
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
@@ -66,7 +65,7 @@
                 {% endif %}
             </div>
             {% else %}
-            <!-- Скрытое поле для предопределенного года -->
+            
             {{ form.year_album }}
             {% endif %}
 
@@ -74,7 +73,7 @@
                 📝 Создать класс
             </button>
 
-            <!-- Информация о том, где создается класс (простой текст) -->
+            
             {% if predefined_year %}
             <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; text-align: center; color: #666; font-size: 14px;">
                 Создается для учебного года: <strong>{{ year.year }}</strong>

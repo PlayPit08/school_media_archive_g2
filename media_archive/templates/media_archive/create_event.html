@@ -55,8 +55,7 @@
                 </div>
             </div>
 
-            <!-- Поле выбора класса показываем ТОЛЬКО если НЕ predefined_class -->
-            {% if not predefined_class %}
+            
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
                     Класс:
@@ -69,7 +68,7 @@
                 {% endif %}
             </div>
             {% else %}
-            <!-- Скрытое поле для предопределенного класса -->
+        
             {{ form.school_class }}
             {% endif %}
 
@@ -77,7 +76,7 @@
                 📝 Создать событие
             </button>
 
-            <!-- Информация о том, где создается событие (простой текст) -->
+            
             {% if predefined_class %}
             <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; text-align: center; color: #666; font-size: 14px;">
                 Создается для класса: <strong>{{ school_class.class_name }}</strong> •

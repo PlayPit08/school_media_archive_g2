@@ -30,17 +30,15 @@ class YearAlbum(models.Model):
         verbose_name = 'Учебный год'
         verbose_name_plural = 'Учебные годы'
         ordering = ['-year']
-        # Добавляем уникальность года
         constraints = [
             models.UniqueConstraint(
                 fields=['year'],
                 name='unique_year',
-                condition=models.Q(status='approved')  # Уникальность только для approved
+                condition=models.Q(status='approved')
             )
         ]
 
     def clean(self):
-        # Проверяем уникальность при создании/изменении
         if self.status == 'approved':
             existing = YearAlbum.objects.filter(
                 year=self.year, 
@@ -50,7 +48,6 @@ class YearAlbum(models.Model):
                 raise ValidationError({'year': 'Учебный год с таким названием уже существует и одобрен'})
 
     def save(self, *args, **kwargs):
-        # Вызываем clean() перед сохранением
         self.clean()
         super().save(*args, **kwargs)
 
@@ -59,7 +56,6 @@ class YearAlbum(models.Model):
 
     @property
     def approved_classes_count(self):
-        """Количество одобренных классов в году"""
         return self.classes.filter(status='approved').count()
 
 class SchoolClass(models.Model):
@@ -96,17 +92,15 @@ class SchoolClass(models.Model):
         verbose_name = 'Класс'
         verbose_name_plural = 'Классы'
         ordering = ['class_name']
-        # Добавляем уникальность класса в рамках года
         constraints = [
             models.UniqueConstraint(
                 fields=['class_name', 'year_album'],
                 name='unique_class_in_year',
-                condition=models.Q(status='approved')  # Уникальность только для approved
+                condition=models.Q(status='approved')
             )
         ]
 
     def clean(self):
-        # Проверяем уникальность при создании/изменении
         if self.status == 'approved':
             existing = SchoolClass.objects.filter(
                 class_name=self.class_name,
@@ -119,7 +113,6 @@ class SchoolClass(models.Model):
                 })
 
     def save(self, *args, **kwargs):
-        # Вызываем clean() перед сохранением
         self.clean()
         super().save(*args, **kwargs)
 
@@ -128,7 +121,6 @@ class SchoolClass(models.Model):
 
     @property
     def approved_events_count(self):
-        """Количество одобренных событий в классе"""
         return self.events.filter(status='approved').count()
 
 class EventAlbum(models.Model):
@@ -168,17 +160,15 @@ class EventAlbum(models.Model):
         verbose_name = 'Событие'
         verbose_name_plural = 'События'
         ordering = ['-created_at']
-        # Добавляем уникальность события в рамках класса
         constraints = [
             models.UniqueConstraint(
                 fields=['title', 'school_class'],
                 name='unique_event_in_class',
-                condition=models.Q(status='approved')  # Уникальность только для approved
+                condition=models.Q(status='approved')
             )
         ]
 
     def clean(self):
-        # Проверяем уникальность при создании/изменении
         if self.status == 'approved':
             existing = EventAlbum.objects.filter(
                 title=self.title,
@@ -191,7 +181,6 @@ class EventAlbum(models.Model):
                 })
 
     def save(self, *args, **kwargs):
-        # Вызываем clean() перед сохранением
         self.clean()
         super().save(*args, **kwargs)
 
@@ -200,7 +189,6 @@ class EventAlbum(models.Model):
 
     @property
     def approved_photos_count(self):
-        """Количество одобренных фотографий в событии"""
         return self.photos.filter(status='approved').count()
 
 class Photo(models.Model):
@@ -246,10 +234,8 @@ class Photo(models.Model):
 
     @property
     def is_approved(self):
-        """Проверяет, одобрена ли фотография"""
         return self.status == 'approved'
 
     @property
     def is_pending(self):
-        """Проверяет, находится ли фотография на модерации"""
         return self.status == 'pending'

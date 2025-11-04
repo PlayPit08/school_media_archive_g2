@@ -150,7 +150,6 @@
             margin: 30px 0;
         }
 
-        /* Стили для пустых состояний */
         .empty-state {
             text-align: center;
             padding: 80px 40px;
@@ -204,7 +203,6 @@
             }
         }
 
-        /* Стили для форм регистрации и входа */
         .auth-container {
             max-width: 400px;
             margin: 50px auto;
@@ -282,7 +280,6 @@
             margin-top: 4px;
         }
 
-        /* Стили для красивых модальных окон */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -389,7 +386,6 @@
             padding: 40px 0;
         }
 
-        /* ЗАГОЛОВКИ ДЛЯ СТРАНИЦ ПРОСМОТРА - ПО ЦЕНТРУ */
         .page-title {
             text-align: center;
             margin-bottom: 40px;
@@ -412,7 +408,6 @@
             border-radius: 2px;
         }
 
-        /* ЗАГОЛОВКИ ДЛЯ ФОРМ СОЗДАНИЯ - СЛЕВА */
         .form-page-title {
             text-align: left;
             margin-bottom: 40px;
@@ -469,7 +464,6 @@
             border: 1px solid #ffeaa7;
         }
 
-        /* Универсальные стили для кнопок удаления */
         .delete-btn {
             transition: all 0.3s ease !important;
             border: 1px solid rgba(255,255,255,0.3);
@@ -481,7 +475,6 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
-        /* Плавные переходы для карточек */
         .year-card, .class-card, .event-card, .photo-thumbnail {
             transition: all 0.3s ease;
             position: relative;
@@ -573,7 +566,6 @@
         </div>
     </main>
 
-    <!-- Модальное окно для подтверждения -->
     <div id="confirmationModal" class="modal-overlay">
         <div class="modal-content">
             <div id="modalIcon" class="modal-icon">⚠️</div>
@@ -587,9 +579,7 @@
     </div>
 
     <script>
-        // Базовые скрипты можно добавить здесь
         document.addEventListener('DOMContentLoaded', function() {
-            // Автоматическое скрытие сообщений через 5 секунд
             setTimeout(function() {
                 const alerts = document.querySelectorAll('.alert');
                 alerts.forEach(function(alert) {
@@ -601,7 +591,6 @@
                 });
             }, 5000);
 
-            // Управление модальным окном
             const modal = document.getElementById('confirmationModal');
             const modalConfirm = document.getElementById('modalConfirm');
             const modalCancel = document.getElementById('modalCancel');
@@ -610,21 +599,18 @@
                 modal.style.display = 'none';
             });
 
-            // Закрытие по клику вне модального окна
             modal.addEventListener('click', function(e) {
                 if (e.target === modal) {
                     modal.style.display = 'none';
                 }
             });
 
-            // Закрытие по Escape
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && modal.style.display === 'flex') {
                     modal.style.display = 'none';
                 }
             });
 
-            // Универсальный скрипт для показа кнопок удаления при наведении
             const cards = document.querySelectorAll('.year-card, .class-card, .event-card, .photo-thumbnail');
             
             cards.forEach(function(card) {
@@ -637,7 +623,6 @@
                         this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
                     }
                     
-                    // Показываем кнопку удаления
                     var deleteBtn = this.querySelector('.delete-btn');
                     if (deleteBtn) {
                         deleteBtn.style.opacity = '1';
@@ -653,7 +638,6 @@
                         this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
                     }
                     
-                    // Скрываем кнопку удаления
                     var deleteBtn = this.querySelector('.delete-btn');
                     if (deleteBtn) {
                         deleteBtn.style.opacity = '0';
@@ -662,7 +646,6 @@
             });
         });
 
-        // Глобальная функция для показа модального окна
         function showConfirmationModal(title, message, icon, onConfirm) {
             const modal = document.getElementById('confirmationModal');
             const modalTitle = document.getElementById('modalTitle');
@@ -674,7 +657,6 @@
             modalMessage.textContent = message;
             modalIcon.textContent = icon;
 
-            // Обновляем обработчик подтверждения
             modalConfirm.onclick = function() {
                 modal.style.display = 'none';
                 if (onConfirm) onConfirm();

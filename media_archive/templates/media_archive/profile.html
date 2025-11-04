@@ -6,7 +6,7 @@
 <div style="max-width: 1200px; margin: 0 auto;">
     <h1 class="page-title" style="margin-bottom: 30px;">Личный кабинет</h1>
 
-    <!-- Панель модератора/администратора -->
+    
     {% if user.is_staff or user.is_superuser %}
     <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 25px;">
         <h3 style="margin-bottom: 15px; color: #333;">
@@ -31,10 +31,10 @@
     </div>
     {% endif %}
 
-    <!-- Остальная часть кода без изменений -->
+    
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; margin-bottom: 40px;">
 
-        <!-- Учебные годы -->
+        
         <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
             <h2 style="color: #cb5603; margin-bottom: 20px;">📅 Мои учебные годы ({{ user_years.count }})</h2>
 
@@ -61,7 +61,7 @@
             </a>
         </div>
 
-        <!-- Классы -->
+        
         <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
             <h2 style="color: #cb5603; margin-bottom: 20px;">🏫 Мои классы ({{ user_classes.count }})</h2>
 
@@ -91,7 +91,7 @@
             </a>
         </div>
 
-        <!-- События -->
+        
         <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
             <h2 style="color: #cb5603; margin-bottom: 20px;">📝 Мои события ({{ user_events.count }})</h2>
 
@@ -121,7 +121,7 @@
             </a>
         </div>
 
-        <!-- Фото -->
+        
         <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
             <h2 style="color: #cb5603; margin-bottom: 20px;">📷 Мои фото ({{ user_photos.count }})</h2>
 
@@ -152,7 +152,7 @@
         </div>
     </div>
 
-    <!-- Информация о модерации -->
+    
     <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
         <h3 style="color: #333; margin-bottom: 20px;">ℹ️ Информация о модерации</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">

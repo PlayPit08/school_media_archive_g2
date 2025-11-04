@@ -12,7 +12,6 @@
         <span>{{ school_class.class_name }}</span>
     </nav>
 
-    <!-- Центрированный заголовок класса -->
     <div style="text-align: center; margin-bottom: 40px;">
         <h1 class="page-title" style="margin-bottom: 10px; color: #000;">{{ school_class.class_name }}</h1>
         <p style="color: #666; font-size: 18px; margin: 0;">{{ school_class.year_album.year }} учебный год</p>
@@ -20,7 +19,7 @@
 </div>
 
 {% if events %}
-<!-- УБИРАЕМ верхнюю кнопку когда события уже есть -->
+
 <div class="years-container" style="display: flex; flex-direction: column; gap: 40px;">
     {% for event_group in events %}
     <div class="years-row" style="display: flex; justify-content: space-between; gap: 30px; position: relative;">
@@ -29,7 +28,7 @@
              style="position: relative; cursor: pointer; background: #f8f9fa; padding: 50px 30px; border-radius: 8px; text-align: center; transition: all 0.3s ease; border: 1px solid #e0e0e0; width: 30%; box-shadow: 0 4px 6px rgba(0,0,0,0.05);"
              onclick="location.href='{% url 'event_detail' event.id %}'">
             
-            <!-- Кнопка удаления события -->
+
             {% if user.is_authenticated and user == event.created_by or user.is_staff or user.is_superuser %}
             <a href="{% url 'delete_event' event.id %}" 
                class="delete-btn"
@@ -51,7 +50,7 @@
         </div>
         {% endfor %}
         
-        <!-- Добавляем кнопку добавления в ТЕКУЩИЙ ряд, если есть место -->
+
         {% if forloop.last and user.is_authenticated %}
             {% with event_group_length=event_group|length %}
                 {% if event_group_length == 1 %}
@@ -70,11 +69,11 @@
                         </div>
                     </div>
                 {% else %}
-                    <!-- Ряд полный (3 элемента) - кнопка пойдет в следующий ряд -->
+                  
                 {% endif %}
             {% endwith %}
         {% else %}
-            <!-- Добавляем пустые карточки для заполнения ряда -->
+
             {% with event_group_length=event_group|length %}
                 {% if event_group_length == 1 %}
                     <div style="width: 30%; visibility: hidden;"></div>
@@ -86,7 +85,7 @@
         {% endif %}
     </div>
     
-    <!-- Если последний ряд полный (3 элемента), добавляем новый ряд с кнопкой добавления -->
+
     {% if forloop.last and event_group|length == 3 and user.is_authenticated %}
     <div class="years-row">
         <div class="add-event-card" onclick="location.href='{% url 'create_event_for_class' school_class.id %}'">
@@ -108,7 +107,7 @@
     {% endfor %}
 </div>
 {% else %}
-<!-- Состояние когда событий нет - БОЛЬШАЯ КВАДРАТНАЯ КНОПКА -->
+
 <div class="empty-state">
     <div class="empty-icon">📁</div>
     <h3>Пока нет событий</h3>
@@ -125,42 +124,13 @@
 
 {% block extra_css %}
 <style>
-/* Стили для КВАДРАТНЫХ кнопок добавления */
+
 .add-button-container {
     text-align: center;
     margin: 30px 0;
 }
 
-/* Маленькая квадратная кнопка (когда есть события) - УБРАНА */
-/* .add-event-card-small {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    background: #f8f9fa;
-    color: #cb5603;
-    text-decoration: none;
-    padding: 15px 30px;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(203, 86, 3, 0.2);
-    transition: all 0.3s ease;
-    border: 2px dashed #cb5603;
-    cursor: pointer;
-    min-width: 250px;
-}
 
-.add-event-card-small:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(203, 86, 3, 0.3);
-    background: #fff;
-    border-color: #a84502;
-    border-style: solid;
-    color: #a84502;
-} */
-
-/* Карточка добавления в сетке */
 .add-event-card {
     width: 30%;
     background: #f8f9fa;
@@ -184,7 +154,7 @@
     border-style: solid;
 }
 
-/* Большая квадратная кнопка для пустого состояния */
+
 .add-event-card-large {
     display: inline-flex;
     align-items: center;
@@ -240,7 +210,7 @@
     color: #a84502;
 }
 
-/* Стили для пустых состояний */
+
 .empty-state {
     text-align: center;
     padding: 80px 40px;
@@ -296,12 +266,12 @@
         font-size: 22px;
     }
 
-    /* На мобильных убираем разделительные линии */
+
     .years-row::after {
         display: none;
     }
     
-    /* Скрываем пустые карточки на мобильных */
+
     .years-row div[style*="visibility: hidden"] {
         display: none;
     }

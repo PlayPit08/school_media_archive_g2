@@ -17,26 +17,26 @@ class YearAlbumForm(forms.ModelForm):
     def clean_year(self):
         year = self.cleaned_data.get('year')
 
-        # Проверка формата "год-год"
+        
         pattern = r'^\d{4}-\d{4}$'
         if not re.match(pattern, year):
             raise forms.ValidationError('Формат года должен быть: год-год (например: 2023-2024)')
 
-        # Разделяем годы
+        
         try:
             start_year, end_year = map(int, year.split('-'))
         except ValueError:
             raise forms.ValidationError('Неверный формат года')
 
-        # Проверяем минимальный год
+        
         if start_year < 1950:
             raise forms.ValidationError('Минимальный год: 1950')
 
-        # Проверяем что второй год на 1 больше первого
+        
         if end_year != start_year + 1:
             raise forms.ValidationError('Второй год должен быть на 1 больше первого (например: 2023-2024)')
 
-        # Проверяем уникальность среди approved годов
+        
         existing_year = YearAlbum.objects.filter(
             year=year, 
             status='approved'
@@ -61,24 +61,24 @@ class SchoolClassForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Показываем только одобренные учебные годы
+        
         self.fields['year_album'].queryset = YearAlbum.objects.filter(status='approved')
 
     def clean_class_name(self):
         class_name = self.cleaned_data.get('class_name')
 
-        # Удаляем пробелы и приводим к верхнему регистру
+        
         class_name = class_name.strip().upper()
 
-        # Проверяем формат: цифра от 1 до 11 + буква (опционально)
+        
         pattern = r'^(1[0-1]|[1-9])([А-ЯЁA-Z])?$'
         if not re.match(pattern, class_name):
             raise forms.ValidationError('Формат класса: цифра от 1 до 11 и буква (например: 5А, 10Б)')
 
-        # Извлекаем цифровую часть
+        
         class_number = int(re.findall(r'\d+', class_name)[0])
 
-        # Проверяем что номер класса от 1 до 11
+        
         if class_number < 1 or class_number > 11:
             raise forms.ValidationError('Номер класса должен быть от 1 до 11')
 
@@ -89,9 +89,9 @@ class SchoolClassForm(forms.ModelForm):
         class_name = cleaned_data.get('class_name')
         year_album = cleaned_data.get('year_album')
 
-        # Проверяем уникальность класса в рамках учебного года
+        
         if class_name and year_album:
-            # Нормализуем название класса
+            
             normalized_class_name = class_name.strip().upper()
             
             existing_class = SchoolClass.objects.filter(
@@ -121,7 +121,7 @@ class EventAlbumForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Показываем только одобренные классы
+        
         self.fields['school_class'].queryset = SchoolClass.objects.filter(status='approved')
 
     def clean(self):
@@ -129,9 +129,9 @@ class EventAlbumForm(forms.ModelForm):
         title = cleaned_data.get('title')
         school_class = cleaned_data.get('school_class')
 
-        # Проверяем уникальность события в рамках класса
+        
         if title and school_class:
-            # Нормализуем название события (убираем лишние пробелы)
+            
             normalized_title = ' '.join(title.strip().split())
             
             existing_event = EventAlbum.objects.filter(
@@ -164,7 +164,7 @@ class MultipleImageField(forms.ImageField):
         return result
 
 class PhotoUploadForm(forms.ModelForm):
-    # Используем кастомное поле для множественной загрузки
+    
     images = MultipleImageField(
         widget=MultipleFileInput(attrs={
             'class': 'form-control',

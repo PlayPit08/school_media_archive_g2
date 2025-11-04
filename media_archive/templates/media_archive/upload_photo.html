@@ -34,7 +34,7 @@
             </div>
             {% endif %}
 
-            <!-- Поле выбора события (только если не предопределено) -->
+            
             {% if not predefined_event %}
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
@@ -55,10 +55,10 @@
                 {% endif %}
             </div>
             {% else %}
-            <!-- Скрытое поле для предопределенного события -->
+            
             {{ form.event_album }}
             
-            <!-- Информация о предопределенном событии -->
+            
             <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #cb5603;">
                 <div style="font-weight: 600; color: #333; margin-bottom: 5px;">Загрузка фотографий в событие:</div>
                 <div style="color: #666; font-size: 14px;">
@@ -90,7 +90,7 @@
                 </div>
             </div>
 
-            <!-- Превью фотографий -->
+            
             <div id="imagesPreview" style="display: none; margin-bottom: 20px;">
                 <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px; color: #333;">Предпросмотр:</div>
                 <div id="previewContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;"></div>
@@ -118,7 +118,7 @@ function previewImages(input) {
     const fileCount = document.getElementById('fileCount');
     const countSpan = document.getElementById('count');
 
-    // Очищаем предыдущие превью
+    
     previewContainer.innerHTML = '';
     
     if (input.files && input.files.length > 0) {
@@ -178,7 +178,6 @@ function confirmUploadPhotos() {
     const eventSelect = document.querySelector('#id_event_album');
     const fileInput = document.querySelector('#imagesInput');
 
-    // Определяем текст события в зависимости от контекста
     let eventText;
     {% if predefined_event %}
         eventText = "{{ event.title }} ({{ event.school_class.class_name }}, {{ event.school_class.year_album.year }})";
@@ -192,7 +191,6 @@ function confirmUploadPhotos() {
             );
             return;
         }
-        // Берем текст напрямую из выбранной опции
         eventText = eventSelect.options[eventSelect.selectedIndex].text;
     {% endif %}
 
@@ -220,7 +218,7 @@ function confirmUploadPhotos() {
     );
 }
 
-// Показываем ошибки формы
+
 {% if form.errors %}
 document.addEventListener('DOMContentLoaded', function() {
     {% if form.images.errors %}
