@@ -34,7 +34,6 @@
             </div>
             {% endif %}
 
-            
             {% if not predefined_event %}
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
@@ -55,18 +54,7 @@
                 {% endif %}
             </div>
             {% else %}
-            
             {{ form.event_album }}
-            
-            
-            <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #cb5603;">
-                <div style="font-weight: 600; color: #333; margin-bottom: 5px;">Загрузка фотографий в событие:</div>
-                <div style="color: #666; font-size: 14px;">
-                    <strong>{{ event.title }}</strong><br>
-                    Класс: {{ event.school_class.class_name }} • 
-                    Учебный год: {{ event.school_class.year_album.year }}
-                </div>
-            </div>
             {% endif %}
 
             <div style="margin-bottom: 20px;">
@@ -90,7 +78,6 @@
                 </div>
             </div>
 
-            
             <div id="imagesPreview" style="display: none; margin-bottom: 20px;">
                 <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px; color: #333;">Предпросмотр:</div>
                 <div id="previewContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;"></div>
@@ -105,21 +92,85 @@
             <button type="button" onclick="confirmUploadPhotos()" style="background: #cb5603; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; transition: all 0.3s;">
                 📤 Загрузить фотографии
             </button>
+
+            {% if predefined_event %}
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; text-align: center; color: #666; font-size: 14px;">
+                Загружается в событие: <strong>{{ event.title }}</strong> •
+                Класс: <strong>{{ event.school_class.class_name }}</strong> •
+                Учебный год: <strong>{{ event.school_class.year_album.year }}</strong>
+            </div>
+            {% endif %}
         </form>
+    </div>
+</div>
+
+<!-- PhotoSwipe для превью -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="pswp__bg"></div>
+    <div class="pswp__scroll-wrap">
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
 
+{% block extra_css %}
+<style>
+.preview-image {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.preview-image:hover {
+    transform: scale(1.05);
+}
+
+.pswp__img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+</style>
+{% endblock %}
+
 {% block extra_js %}
 <script>
+let previewPhotoSwipeItems = [];
+
 function previewImages(input) {
     const previewContainer = document.getElementById('previewContainer');
     const previewContainerWrapper = document.getElementById('imagesPreview');
     const fileCount = document.getElementById('fileCount');
     const countSpan = document.getElementById('count');
 
-    
     previewContainer.innerHTML = '';
+    previewPhotoSwipeItems = [];
     
     if (input.files && input.files.length > 0) {
         countSpan.textContent = input.files.length;
@@ -142,6 +193,11 @@ function previewImages(input) {
                 img.style.objectFit = 'cover';
                 img.style.borderRadius = '4px';
                 img.style.marginBottom = '5px';
+                img.style.cursor = 'pointer';
+                img.className = 'preview-image';
+                img.onclick = function() {
+                    openPreviewPhoto(i);
+                };
                 
                 const fileName = document.createElement('div');
                 fileName.style.fontSize = '10px';
@@ -149,11 +205,19 @@ function previewImages(input) {
                 fileName.style.overflow = 'hidden';
                 fileName.style.textOverflow = 'ellipsis';
                 fileName.style.whiteSpace = 'nowrap';
-                fileName.textContent = file.name;
+                fileName.textContent = `Фото ${i + 1}`;
                 
                 previewItem.appendChild(img);
                 previewItem.appendChild(fileName);
                 previewContainer.appendChild(previewItem);
+
+                // Добавляем в массив для PhotoSwipe
+                previewPhotoSwipeItems.push({
+                    src: e.target.result,
+                    w: 0,
+                    h: 0,
+                    title: `Фото ${i + 1}`
+                });
             }
 
             reader.readAsDataURL(file);
@@ -164,6 +228,53 @@ function previewImages(input) {
     }
 }
 
+function openPreviewPhoto(index) {
+    if (previewPhotoSwipeItems.length === 0) return;
+
+    var pswpElement = document.querySelectorAll('.pswp')[0];
+
+    var options = {
+        index: parseInt(index),
+        bgOpacity: 0.9,
+        showHideOpacity: true,
+        closeOnScroll: false,
+        history: false,
+        shareEl: false,
+        fullscreenEl: true,
+        zoomEl: true,
+        maxSpreadZoom: 3,
+        getDoubleTapZoom: function(isMouseClick, item) {
+            return item.initialZoomLevel < 0.7 ? 1 : 1.5;
+        },
+        imageClickAction: 'zoom',
+        tapToToggleControls: true,
+        pinchToClose: false
+    };
+
+    var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, previewPhotoSwipeItems, options);
+
+    gallery.listen('gettingData', function(index, item) {
+        if (item.w < 1 || item.h < 1) {
+            var img = new Image();
+            img.onload = function() {
+                item.w = this.naturalWidth;
+                item.h = this.naturalHeight;
+                gallery.invalidateCurrItems();
+                gallery.updateSize(true);
+            };
+            img.onerror = function() {
+                item.w = 1200;
+                item.h = 800;
+                gallery.invalidateCurrItems();
+                gallery.updateSize(true);
+            };
+            img.src = item.src;
+        }
+    });
+
+    gallery.init();
+}
+
 function clearImages() {
     const input = document.getElementById('imagesInput');
     const previewContainerWrapper = document.getElementById('imagesPreview');
@@ -172,6 +283,7 @@ function clearImages() {
     input.value = '';
     previewContainerWrapper.style.display = 'none';
     fileCount.style.display = 'none';
+    previewPhotoSwipeItems = [];
 }
 
 function confirmUploadPhotos() {
@@ -217,7 +329,6 @@ function confirmUploadPhotos() {
         }
     );
 }
-
 
 {% if form.errors %}
 document.addEventListener('DOMContentLoaded', function() {
