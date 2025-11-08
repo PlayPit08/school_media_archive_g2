@@ -123,11 +123,18 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Authentication
 LOGIN_REDIRECT_URL = '/profile/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
+
+# УБЕРИТЕ ЭТУ СТРОКУ:
+# AUTH_USER_MODEL = 'media_archive.CustomUser'
 
 # Автоматическое создание папок для медиа-файлов
 def create_media_folders():

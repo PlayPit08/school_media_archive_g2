@@ -5,6 +5,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django import forms
+from django.contrib.auth.models import User
 from .models import YearAlbum, SchoolClass, EventAlbum, Photo
 from .forms import YearAlbumForm, SchoolClassForm, EventAlbumForm, PhotoUploadForm
 
@@ -464,12 +465,18 @@ def register_view(request):
         if password1 != password2:
             messages.error(request, 'Пароли не совпадают.')
             return render(request, 'media_archive/register.html')
-        from django.contrib.auth.models import User
         try:
             if User.objects.filter(username=username).exists():
                 messages.error(request, 'Пользователь с таким именем уже существует.')
                 return render(request, 'media_archive/register.html')
-            user = User.objects.create_user(username=username, password=password1)
+            # Создаем пользователя с пустыми полями
+            user = User.objects.create_user(
+                username=username, 
+                password=password1,
+                email='',
+                first_name='',
+                last_name=''
+            )
             login(request, user)
             messages.success(request, 'Регистрация прошла успешно!')
             return redirect('home')
