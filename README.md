@@ -13,6 +13,9 @@
  - SQLite
  - HTML/CSS
 
+## Статус проекта
+ - Проект закрыт, защита проведена успешно
+
 ## Установка
 ```bash
 git clone https://github.com/PlayPit08/school_media_archive_g2.git
@@ -22,7 +25,3 @@ source venv/bin/activate
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
-```bash
-
-## Статус
-Проект закрыт, защита проведена.
