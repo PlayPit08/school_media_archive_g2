@@ -4,16 +4,15 @@
 
 {% block content %}
 <div style="margin-bottom: 30px;">
-    <nav style="margin-bottom: 20px; font-size: 14px; color: #666;">
-        <a href="{% url 'home' %}" style="color: #cb5603; text-decoration: none;">Главная</a>
+    <nav style="margin-bottom: 20px; font-size: 14px; color: #666; font-family: 'Roboto', Arial, sans-serif;">
+        <a href="{% url 'home' %}" style="color: #e67e22; text-decoration: none;">Главная</a>
         &nbsp;→&nbsp;
         <span>{{ year.year }}</span>
     </nav>
 
-
     <div style="text-align: center; margin-bottom: 40px;">
         <h1 class="page-title" style="margin-bottom: 10px; color: #000;">{{ year.year }} учебный год</h1>
-        <p style="color: #666; font-size: 18px; margin: 0;">Классы этого учебного года</p>
+        <p style="color: #666; font-size: 18px; margin: 0; font-family: 'Roboto', Arial, sans-serif;">Классы этого учебного года</p>
     </div>
 </div>
 
@@ -24,25 +23,25 @@
     <div class="years-row" style="display: flex; justify-content: space-between; gap: 30px; position: relative;">
         {% for class in class_group %}
         <div class="year-card" 
-             style="position: relative; cursor: pointer; background: #f8f9fa; padding: 50px 30px; border-radius: 8px; text-align: center; transition: all 0.3s ease; border: 1px solid #e0e0e0; width: 30%; box-shadow: 0 4px 6px rgba(0,0,0,0.05);"
+             style="position: relative; cursor: pointer; background: #f8f9fa; padding: 50px 30px; border-radius: 8px; text-align: center; transition: all 0.3s ease; border: 1px solid #e0e0e0; width: 30%; box-shadow: 0 4px 6px rgba(0,0,0,0.05); font-family: 'Roboto', Arial, sans-serif;"
              onclick="location.href='{% url 'class_detail' class.id %}'">
             
             
             {% if user.is_authenticated and user == class.created_by or user.is_staff or user.is_superuser %}
             <a href="{% url 'delete_class' class.id %}" 
                class="delete-btn"
-               style="position: absolute; top: 15px; right: 15px; background: rgba(220, 53, 69, 0.9); color: white; padding: 8px 10px; border-radius: 4px; text-decoration: none; font-size: 14px; z-index: 10; opacity: 0; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: 1px solid rgba(255,255,255,0.3);">
+               style="position: absolute; top: 15px; right: 15px; background: rgba(220, 53, 69, 0.9); color: white; padding: 8px 10px; border-radius: 4px; text-decoration: none; font-size: 14px; z-index: 10; opacity: 0; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: 1px solid rgba(255,255,255,0.3); font-family: 'Roboto', Arial, sans-serif;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                 </svg>
             </a>
             {% endif %}
             
-            <div class="year-title" style="font-size: 26px; font-weight: 700; color: #000;">{{ class.class_name }}</div>
-            <div style="margin-top: 10px; font-size: 14px; color: #666;">
+            <div class="year-title" style="font-size: 26px; font-weight: 700; color: #000; font-family: 'Roboto', Arial, sans-serif;">{{ class.class_name }}</div>
+            <div style="margin-top: 10px; font-size: 14px; color: #666; font-family: 'Roboto', Arial, sans-serif;">
                 📅 {{ class.approved_events_count }} событий
             </div>
-            <div style="margin-top: 15px; color: #888; font-size: 13px;">
+            <div style="margin-top: 15px; color: #888; font-size: 13px; font-family: 'Roboto', Arial, sans-serif;">
                 Создано: {{ class.created_by.username }}<br>
                 {{ class.created_at|date:"d.m.Y" }}
             </div>
@@ -96,7 +95,7 @@
     
     {% if not forloop.last %}
     <div style="position: relative;">
-        <div style="position: absolute; bottom: -20px; left: 5%; width: 90%; height: 2px; background: #cb5603;"></div>
+        <div style="position: absolute; bottom: -20px; left: 5%; width: 90%; height: 2px; background: #e67e22;"></div>
     </div>
     {% endif %}
     {% endfor %}
@@ -118,13 +117,14 @@
 
 {% block extra_css %}
 <style>
+* {
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
 .add-button-container {
     text-align: center;
     margin: 30px 0;
 }
-
-
-
 
 .add-class-card {
     width: 30%;
@@ -133,7 +133,7 @@
     border-radius: 8px;
     text-align: center;
     transition: all 0.3s ease;
-    border: 2px dashed #cb5603;
+    border: 2px dashed #e67e22;
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     display: flex;
@@ -142,13 +142,10 @@
 }
 
 .add-class-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
     background: #fff;
-    border-color: #a84502;
+    border-color: #e67e22;
     border-style: solid;
 }
-
 
 .add-class-card-large {
     display: inline-flex;
@@ -156,26 +153,24 @@
     justify-content: center;
     gap: 15px;
     background: #f8f9fa;
-    color: #cb5603;
+    color: #e67e22;
     text-decoration: none;
     padding: 25px 50px;
     border-radius: 12px;
     font-size: 20px;
     font-weight: 600;
-    box-shadow: 0 6px 20px rgba(203, 86, 3, 0.2);
+    box-shadow: 0 6px 20px rgba(230, 126, 34, 0.2);
     transition: all 0.3s ease;
-    border: 2px dashed #cb5603;
+    border: 2px dashed #e67e22;
     cursor: pointer;
     min-width: 300px;
 }
 
 .add-class-card-large:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(203, 86, 3, 0.3);
     background: #fff;
-    border-color: #a84502;
+    border-color: #e67e22;
     border-style: solid;
-    color: #a84502;
+    color: #e67e22;
 }
 
 .add-card-content {
@@ -187,7 +182,7 @@
 
 .add-card-icon {
     font-size: 36px;
-    color: #cb5603;
+    color: #e67e22;
     font-weight: 300;
     line-height: 1;
 }
@@ -195,14 +190,14 @@
 .add-card-text {
     font-size: 18px;
     font-weight: 600;
-    color: #cb5603;
+    color: #e67e22;
 }
 
 .add-class-card:hover .add-card-icon,
 .add-class-card:hover .add-card-text,
 .add-class-card-large:hover .add-card-icon,
 .add-class-card-large:hover .add-card-text {
-    color: #a84502;
+    color: #e67e22;
 }
 
 .empty-state {

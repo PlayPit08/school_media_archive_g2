@@ -18,12 +18,12 @@
         </h3>
 
         <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-            <a href="{% url 'moderation_dashboard' %}" class="btn" style="background: #28a745; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: 500; border: none;">
+            <a href="{% url 'moderation_dashboard' %}" class="btn-moderator">
                 Панель модерации
             </a>
 
             {% if user.is_superuser %}
-            <a href="/admin/" class="btn" style="background: #cb5603; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: 500; border: none;">
+            <a href="/admin/" class="btn-admin">
                 Админ-панель Django
             </a>
             {% endif %}
@@ -36,7 +36,7 @@
 
         
         <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
-            <h2 style="color: #cb5603; margin-bottom: 20px;">📅 Мои учебные годы ({{ user_years.count }})</h2>
+            <h2 style="color: #e67e22; margin-bottom: 20px;">📅 Мои учебные годы ({{ user_years.count }})</h2>
 
             {% if user_years %}
                 {% for year in user_years %}
@@ -56,14 +56,14 @@
                 <p style="color: #666; margin-bottom: 20px;">Вы еще не создали учебные годы</p>
             {% endif %}
 
-            <a href="{% url 'create_year' %}" class="btn" style="background: #cb5603; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; display: inline-block; margin-top: 10px;">
+            <a href="{% url 'create_year' %}" class="btn-add">
                 ➕ Добавить учебный год
             </a>
         </div>
 
         
         <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
-            <h2 style="color: #cb5603; margin-bottom: 20px;">🏫 Мои классы ({{ user_classes.count }})</h2>
+            <h2 style="color: #e67e22; margin-bottom: 20px;">🏫 Мои классы ({{ user_classes.count }})</h2>
 
             {% if user_classes %}
                 {% for class in user_classes %}
@@ -86,14 +86,14 @@
                 <p style="color: #666; margin-bottom: 20px;">Вы еще не создали классы</p>
             {% endif %}
 
-            <a href="{% url 'create_class' %}" class="btn" style="background: #cb5603; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; display: inline-block; margin-top: 10px;">
+            <a href="{% url 'create_class' %}" class="btn-add">
                 ➕ Добавить класс
             </a>
         </div>
 
         
         <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
-            <h2 style="color: #cb5603; margin-bottom: 20px;">📝 Мои события ({{ user_events.count }})</h2>
+            <h2 style="color: #e67e22; margin-bottom: 20px;">📝 Мои события ({{ user_events.count }})</h2>
 
             {% if user_events %}
                 {% for event in user_events %}
@@ -116,14 +116,14 @@
                 <p style="color: #666; margin-bottom: 20px;">Вы еще не создали события</p>
             {% endif %}
 
-            <a href="{% url 'create_event' %}" class="btn" style="background: #cb5603; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; display: inline-block; margin-top: 10px;">
+            <a href="{% url 'create_event' %}" class="btn-add">
                 ➕ Добавить событие
             </a>
         </div>
 
         
         <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
-            <h2 style="color: #cb5603; margin-bottom: 20px;">📷 Мои фото ({{ user_photos.count }})</h2>
+            <h2 style="color: #e67e22; margin-bottom: 20px;">📷 Мои фото ({{ user_photos.count }})</h2>
 
             {% if user_photos %}
                 {% for photo in user_photos %}
@@ -146,7 +146,7 @@
                 <p style="color: #666; margin-bottom: 20px;">Вы еще не загрузили фото</p>
             {% endif %}
 
-            <a href="{% url 'upload_photo' %}" class="btn" style="background: #cb5603; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; display: inline-block; margin-top: 10px;">
+            <a href="{% url 'upload_photo' %}" class="btn-add">
                 ➕ Загрузить фото
             </a>
         </div>
@@ -174,4 +174,89 @@
         </div>
     </div>
 </div>
+
+<style>
+/* Стили для всех кнопок */
+.btn-moderator {
+    background: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    border: 2px solid #28a745;
+    transition: all 0.3s;
+    display: inline-block;
+}
+
+.btn-moderator:hover {
+    background: white;
+    color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-admin {
+    background: #e67e22;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    border: 2px solid #e67e22;
+    transition: all 0.3s;
+    display: inline-block;
+}
+
+.btn-admin:hover {
+    background: white;
+    color: #e67e22;
+    border-color: #e67e22;
+}
+
+.btn-add {
+    background: #e67e22;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 10px;
+    border: 2px solid #e67e22;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.btn-add:hover {
+    background: white;
+    color: #e67e22;
+    border-color: #e67e22;
+}
+
+/* Общие стили для заголовков */
+h2 {
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
+/* Стили для карточек */
+.year-card, .class-card, .event-card, .photo-card {
+    transition: all 0.3s ease;
+}
+
+.year-card:hover, .class-card:hover, .event-card:hover, .photo-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(230, 126, 34, 0.15);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .btn-moderator, .btn-admin, .btn-add {
+        width: 100%;
+        text-align: center;
+    }
+    
+    div[style*="display: flex; gap: 12px;"] {
+        flex-direction: column;
+    }
+}
+</style>
 {% endblock %}

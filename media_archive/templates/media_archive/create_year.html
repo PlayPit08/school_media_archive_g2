@@ -6,7 +6,7 @@
 <div style="max-width: 600px; margin: 0 auto;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <h1 class="page-title" style="margin-bottom: 0;">Создание учебного года</h1>
-        <a href="{% url 'home' %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+        <a href="{% url 'home' %}" class="btn-back">
             ← Назад
         </a>
     </div>
@@ -29,21 +29,117 @@
             {% endif %}
 
             <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333; font-family: 'Roboto', Arial, sans-serif;">
                     Учебный год:
                 </label>
                 {{ form.year }}
                 {% if form.year.errors %}
-                <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
+                <div style="color: #dc3545; font-size: 14px; margin-top: 5px; font-family: 'Roboto', Arial, sans-serif;">
                     {{ form.year.errors }}
                 </div>
                 {% endif %}
             </div>
 
-            <button type="submit" style="background: #cb5603; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; transition: all 0.3s;">
+            <button type="submit" class="btn-create">
                 📝 Создать учебный год
             </button>
         </form>
     </div>
 </div>
+
+<style>
+/* Общие стили */
+* {
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
+/* Стили для кнопки назад */
+.btn-back {
+    background: #6c757d;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    border: 2px solid #6c757d;
+    transition: all 0.3s;
+    display: inline-block;
+    font-weight: 500;
+}
+
+.btn-back:hover {
+    background: white;
+    color: #6c757d;
+    border-color: #6c757d;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+}
+
+/* Стили для кнопки создания */
+.btn-create {
+    background: #e67e22;
+    color: white;
+    padding: 12px 30px;
+    border: 2px solid #e67e22;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.btn-create:hover {
+    background: white;
+    color: #e67e22;
+    border-color: #e67e22;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3);
+}
+
+/* Стили для поля ввода */
+input[type="text"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: all 0.3s;
+    font-family: 'Roboto', Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: #e67e22;
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.1);
+}
+
+/* Стили для сообщений об ошибках */
+.alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    padding: 12px 16px;
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .btn-back {
+        width: auto;
+        text-align: center;
+    }
+    
+    div[style*="display: flex; justify-content: space-between;"] {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start !important;
+    }
+    
+    .btn-create {
+        width: 100%;
+    }
+}
+</style>
 {% endblock %}

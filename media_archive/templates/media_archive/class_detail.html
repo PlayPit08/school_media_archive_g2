@@ -4,17 +4,17 @@
 
 {% block content %}
 <div style="margin-bottom: 30px;">
-    <nav style="margin-bottom: 20px; font-size: 14px; color: #666;">
-        <a href="{% url 'home' %}" style="color: #cb5603; text-decoration: none;">Главная</a>
+    <nav style="margin-bottom: 20px; font-size: 14px; color: #666; font-family: 'Roboto', Arial, sans-serif;">
+        <a href="{% url 'home' %}" style="color: #e67e22; text-decoration: none;">Главная</a>
         &nbsp;→&nbsp;
-        <a href="{% url 'year_detail' school_class.year_album.id %}" style="color: #cb5603; text-decoration: none;">{{ school_class.year_album.year }}</a>
+        <a href="{% url 'year_detail' school_class.year_album.id %}" style="color: #e67e22; text-decoration: none;">{{ school_class.year_album.year }}</a>
         &nbsp;→&nbsp;
         <span>{{ school_class.class_name }}</span>
     </nav>
 
     <div style="text-align: center; margin-bottom: 40px;">
         <h1 class="page-title" style="margin-bottom: 10px; color: #000;">{{ school_class.class_name }}</h1>
-        <p style="color: #666; font-size: 18px; margin: 0;">{{ school_class.year_album.year }} учебный год</p>
+        <p style="color: #666; font-size: 18px; margin: 0; font-family: 'Roboto', Arial, sans-serif;">{{ school_class.year_album.year }} учебный год</p>
     </div>
 </div>
 
@@ -39,11 +39,11 @@
             </a>
             {% endif %}
             
-            <div class="year-title" style="font-size: 26px; font-weight: 700; color: #000; line-height: 1.3;">{{ event.title }}</div>
-            <div style="margin-top: 10px; font-size: 14px; color: #666;">
+            <div class="year-title" style="font-size: 26px; font-weight: 700; color: #000; line-height: 1.3; font-family: 'Roboto', Arial, sans-serif;">{{ event.title }}</div>
+            <div style="margin-top: 10px; font-size: 14px; color: #666; font-family: 'Roboto', Arial, sans-serif;">
                 📸 {{ event.approved_photos_count }} фото
             </div>
-            <div style="margin-top: 15px; color: #888; font-size: 13px;">
+            <div style="margin-top: 15px; color: #888; font-size: 13px; font-family: 'Roboto', Arial, sans-serif;">
                 Создано: {{ event.created_by.username }}<br>
                 {{ event.created_at|date:"d.m.Y" }}
             </div>
@@ -101,7 +101,7 @@
     
     {% if not forloop.last %}
     <div style="position: relative;">
-        <div style="position: absolute; bottom: -20px; left: 5%; width: 90%; height: 2px; background: #cb5603;"></div>
+        <div style="position: absolute; bottom: -20px; left: 5%; width: 90%; height: 2px; background: #e67e22;"></div>
     </div>
     {% endif %}
     {% endfor %}
@@ -124,13 +124,16 @@
 
 {% block extra_css %}
 <style>
+* {
+    font-family: 'Roboto', Arial, sans-serif;
+}
 
 .add-button-container {
     text-align: center;
     margin: 30px 0;
 }
 
-
+/* Стили для карточки добавления события */
 .add-event-card {
     width: 30%;
     background: #f8f9fa;
@@ -138,7 +141,7 @@
     border-radius: 8px;
     text-align: center;
     transition: all 0.3s ease;
-    border: 2px dashed #cb5603;
+    border: 2px dashed #e67e22;
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     display: flex;
@@ -150,37 +153,37 @@
     transform: translateY(-5px);
     box-shadow: 0 8px 15px rgba(0,0,0,0.1);
     background: #fff;
-    border-color: #a84502;
+    border-color: #e67e22;
     border-style: solid;
 }
 
-
+/* Стили для большой карточки добавления */
 .add-event-card-large {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 15px;
     background: #f8f9fa;
-    color: #cb5603;
+    color: #e67e22;
     text-decoration: none;
     padding: 25px 50px;
     border-radius: 12px;
     font-size: 20px;
     font-weight: 600;
-    box-shadow: 0 6px 20px rgba(203, 86, 3, 0.2);
+    box-shadow: 0 6px 20px rgba(230, 126, 34, 0.2);
     transition: all 0.3s ease;
-    border: 2px dashed #cb5603;
+    border: 2px dashed #e67e22;
     cursor: pointer;
     min-width: 300px;
 }
 
 .add-event-card-large:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(203, 86, 3, 0.3);
+    box-shadow: 0 10px 30px rgba(230, 126, 34, 0.3);
     background: #fff;
-    border-color: #a84502;
+    border-color: #e67e22;
     border-style: solid;
-    color: #a84502;
+    color: #e67e22;
 }
 
 .add-card-content {
@@ -192,7 +195,7 @@
 
 .add-card-icon {
     font-size: 36px;
-    color: #cb5603;
+    color: #e67e22;
     font-weight: 300;
     line-height: 1;
 }
@@ -200,17 +203,17 @@
 .add-card-text {
     font-size: 18px;
     font-weight: 600;
-    color: #cb5603;
+    color: #e67e22;
 }
 
 .add-event-card:hover .add-card-icon,
 .add-event-card:hover .add-card-text,
 .add-event-card-large:hover .add-card-icon,
 .add-event-card-large:hover .add-card-text {
-    color: #a84502;
+    color: #e67e22;
 }
 
-
+/* Стили для пустого состояния */
 .empty-state {
     text-align: center;
     padding: 80px 40px;
@@ -240,6 +243,23 @@
     line-height: 1.5;
 }
 
+/* Стили для карточек событий */
+.year-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(230, 126, 34, 0.15);
+    background: #fff !important;
+}
+
+.year-card:hover .delete-btn {
+    opacity: 1 !important;
+}
+
+.delete-btn:hover {
+    background: rgba(220, 53, 69, 1) !important;
+    transform: scale(1.1);
+}
+
+/* Адаптивность */
 @media (max-width: 768px) {
     .years-row {
         flex-direction: column;
@@ -266,12 +286,10 @@
         font-size: 22px;
     }
 
-
     .years-row::after {
         display: none;
     }
     
-
     .years-row div[style*="visibility: hidden"] {
         display: none;
     }

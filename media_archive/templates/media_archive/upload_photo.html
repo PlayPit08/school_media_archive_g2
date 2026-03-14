@@ -7,11 +7,11 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <h1 class="page-title" style="margin-bottom: 0;">Загрузка фотографий</h1>
         {% if predefined_event %}
-        <a href="{% url 'event_detail' event.id %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+        <a href="{% url 'event_detail' event.id %}" class="btn-back">
             ← Назад к событию
         </a>
         {% else %}
-        <a href="{% url 'profile' %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+        <a href="{% url 'profile' %}" class="btn-back">
             ← Назад
         </a>
         {% endif %}
@@ -63,7 +63,7 @@
                 </label>
                 <input type="file" name="images" id="imagesInput" accept="image/*" multiple
                        style="display: none;" onchange="previewImages(this)">
-                <label for="imagesInput" style="display: inline-block; background: #f8f9fa; padding: 12px 20px; border: 2px dashed #dee2e6; border-radius: 6px; cursor: pointer; text-align: center; width: 100%; transition: all 0.3s;">
+                <label for="imagesInput" style="display: inline-block; background: #f8f9fa; padding: 12px 20px; border: 2px dashed #e67e22; border-radius: 6px; cursor: pointer; text-align: center; width: 100%; transition: all 0.3s;">
                     <div style="font-size: 48px; margin-bottom: 10px;">📷</div>
                     <div style="color: #666;">Нажмите для выбора файлов</div>
                     <div style="color: #999; font-size: 12px; margin-top: 5px;">Поддерживаются: JPG, PNG, GIF. Можно выбрать несколько файлов</div>
@@ -82,14 +82,13 @@
                 <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px; color: #333;">Предпросмотр:</div>
                 <div id="previewContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;"></div>
                 <div style="margin-top: 10px;">
-                    <button type="button" onclick="clearImages()"
-                            style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; transition: all 0.3s;">
+                    <button type="button" onclick="clearImages()" class="btn-delete">
                         ❌ Удалить все превью
                     </button>
                 </div>
             </div>
 
-            <button type="button" onclick="confirmUploadPhotos()" style="background: #cb5603; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; transition: all 0.3s;">
+            <button type="button" onclick="confirmUploadPhotos()" class="btn-upload">
                 📤 Загрузить фотографии
             </button>
 
@@ -155,6 +154,72 @@
 .pswp__img {
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
+}
+
+/* Новые стили для кнопок */
+.btn-back {
+    background: #6c757d;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    border: 2px solid #6c757d;
+    transition: all 0.3s;
+    display: inline-block;
+}
+
+.btn-back:hover {
+    background: white;
+    color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+    border: 2px solid #dc3545;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.btn-delete:hover {
+    background: white;
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-upload {
+    background: #e67e22;
+    color: white;
+    padding: 12px 30px;
+    border: 2px solid #e67e22;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    transition: all 0.3s;
+}
+
+.btn-upload:hover {
+    background: white;
+    color: #e67e22;
+    border-color: #e67e22;
+}
+
+/* Стили для select при фокусе */
+select:focus {
+    outline: none;
+    border-color: #e67e22 !important;
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.1);
+}
+
+/* Стили для label с файлами при наведении */
+label[for="imagesInput"]:hover {
+    border-color: #e67e22;
+    background: #fff;
 }
 </style>
 {% endblock %}

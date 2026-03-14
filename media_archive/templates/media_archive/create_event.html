@@ -13,11 +13,11 @@
             {% endif %}
         </h1>
         {% if predefined_class %}
-        <a href="{% url 'class_detail' school_class.id %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+        <a href="{% url 'class_detail' school_class.id %}" class="btn-back">
             ← Назад к классу
         </a>
         {% else %}
-        <a href="{% url 'profile' %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+        <a href="{% url 'profile' %}" class="btn-back">
             ← Назад
         </a>
         {% endif %}
@@ -41,12 +41,12 @@
             {% endif %}
 
             <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333; font-family: 'Roboto', Arial, sans-serif;">
                     Название события:
                 </label>
                 {{ form.title }}
                 {% if form.title.errors %}
-                <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
+                <div style="color: #dc3545; font-size: 14px; margin-top: 5px; font-family: 'Roboto', Arial, sans-serif;">
                     {{ form.title.errors }}
                 </div>
                 {% endif %}
@@ -54,12 +54,12 @@
 
             {% if not predefined_class %}
             <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333; font-family: 'Roboto', Arial, sans-serif;">
                     Класс:
                 </label>
                 {{ form.school_class }}
                 {% if form.school_class.errors %}
-                <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
+                <div style="color: #dc3545; font-size: 14px; margin-top: 5px; font-family: 'Roboto', Arial, sans-serif;">
                     {{ form.school_class.errors }}
                 </div>
                 {% endif %}
@@ -68,12 +68,12 @@
             {{ form.school_class }}
             {% endif %}
 
-            <button type="submit" style="background: #cb5603; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; transition: all 0.3s;">
+            <button type="submit" class="btn-create">
                 📝 Создать событие
             </button>
 
             {% if predefined_class %}
-            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; text-align: center; color: #666; font-size: 14px;">
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; text-align: center; color: #666; font-size: 14px; font-family: 'Roboto', Arial, sans-serif;">
                 Создается для класса: <strong>{{ school_class.class_name }}</strong> •
                 Учебный год: <strong>{{ school_class.year_album.year }}</strong>
             </div>
@@ -81,4 +81,123 @@
         </form>
     </div>
 </div>
+
+<style>
+/* Общие стили */
+* {
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
+/* Стили для кнопки назад */
+.btn-back {
+    background: #6c757d;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    border: 2px solid #6c757d;
+    transition: all 0.3s;
+    display: inline-block;
+    font-weight: 500;
+}
+
+.btn-back:hover {
+    background: white;
+    color: #6c757d;
+    border-color: #6c757d;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+}
+
+/* Стили для кнопки создания */
+.btn-create {
+    background: #e67e22;
+    color: white;
+    padding: 12px 30px;
+    border: 2px solid #e67e22;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.btn-create:hover {
+    background: white;
+    color: #e67e22;
+    border-color: #e67e22;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3);
+}
+
+/* Стили для полей ввода */
+input[type="text"], 
+input[type="text"].form-control,
+select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: all 0.3s;
+    font-family: 'Roboto', Arial, sans-serif;
+    box-sizing: border-box;
+    background: white;
+}
+
+input[type="text"]:focus,
+select:focus {
+    outline: none;
+    border-color: #e67e22;
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.1);
+}
+
+/* Стили для select */
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+select:hover {
+    border-color: #e67e22;
+}
+
+/* Стили для сообщений об ошибках */
+.alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    padding: 12px 16px;
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .btn-back {
+        width: auto;
+        text-align: center;
+    }
+    
+    div[style*="display: flex; justify-content: space-between;"] {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start !important;
+    }
+    
+    .btn-create {
+        width: 100%;
+    }
+    
+    select {
+        font-size: 14px;
+        padding: 10px 12px;
+    }
+}
+</style>
 {% endblock %}

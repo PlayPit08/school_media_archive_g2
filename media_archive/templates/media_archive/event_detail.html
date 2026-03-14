@@ -4,19 +4,19 @@
 
 {% block content %}
 <div style="margin-bottom: 30px;">
-    <nav style="margin-bottom: 20px; font-size: 14px; color: #666;">
-        <a href="{% url 'home' %}" style="color: #cb5603; text-decoration: none;">Главная</a>
+    <nav style="margin-bottom: 20px; font-size: 14px; color: #666; font-family: 'Roboto', Arial, sans-serif;">
+        <a href="{% url 'home' %}" style="color: #e67e22; text-decoration: none;">Главная</a>
         &nbsp;→&nbsp;
-        <a href="{% url 'year_detail' event.school_class.year_album.id %}" style="color: #cb5603; text-decoration: none;">{{ event.school_class.year_album.year }}</a>
+        <a href="{% url 'year_detail' event.school_class.year_album.id %}" style="color: #e67e22; text-decoration: none;">{{ event.school_class.year_album.year }}</a>
         &nbsp;→&nbsp;
-        <a href="{% url 'class_detail' event.school_class.id %}" style="color: #cb5603; text-decoration: none;">{{ event.school_class.class_name }}</a>
+        <a href="{% url 'class_detail' event.school_class.id %}" style="color: #e67e22; text-decoration: none;">{{ event.school_class.class_name }}</a>
         &nbsp;→&nbsp;
         <span>{{ event.title }}</span>
     </nav>
 
     <div style="text-align: center; margin-bottom: 40px;">
         <h1 class="page-title" style="margin-bottom: 10px; color: #000;">{{ event.title }}</h1>
-        <p style="color: #666; font-size: 18px; margin: 0;">
+        <p style="color: #666; font-size: 18px; margin: 0; font-family: 'Roboto', Arial, sans-serif;">
             Класс: {{ event.school_class.class_name }} • Учебный год: {{ event.school_class.year_album.year }}
         </p>
     </div>
@@ -42,7 +42,7 @@
                      alt="Фото {{ photo.id }}"
                      style="width: 100%; height: 200px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;">
             {% endif %}
-            <div style="color: #666; font-size: 12px; text-align: center;">
+            <div style="color: #666; font-size: 12px; text-align: center; font-family: 'Roboto', Arial, sans-serif;">
                 Фото #{{ forloop.counter }}
             </div>
         </div>
@@ -111,13 +111,28 @@
 
 {% block extra_css %}
 <style>
+* {
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
+/* Стили для навигации */
+nav a {
+    transition: all 0.3s;
+}
+
+nav a:hover {
+    text-decoration: underline !important;
+    opacity: 0.8;
+}
+
+/* Стили для карточки добавления фото */
 .add-photo-card {
     background: #f8f9fa;
     padding: 15px;
     border-radius: 10px;
     text-align: center;
     transition: all 0.3s ease;
-    border: 2px dashed #cb5603;
+    border: 2px dashed #e67e22;
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     display: flex;
@@ -131,7 +146,7 @@
     transform: translateY(-5px);
     box-shadow: 0 8px 15px rgba(0,0,0,0.1);
     background: #fff;
-    border-color: #a84502;
+    border-color: #e67e22;
     border-style: solid;
 }
 
@@ -141,26 +156,26 @@
     justify-content: center;
     gap: 15px;
     background: #f8f9fa;
-    color: #cb5603;
+    color: #e67e22;
     text-decoration: none;
     padding: 25px 50px;
     border-radius: 12px;
     font-size: 20px;
     font-weight: 600;
-    box-shadow: 0 6px 20px rgba(203, 86, 3, 0.2);
+    box-shadow: 0 6px 20px rgba(230, 126, 34, 0.2);
     transition: all 0.3s ease;
-    border: 2px dashed #cb5603;
+    border: 2px dashed #e67e22;
     cursor: pointer;
     min-width: 300px;
 }
 
 .add-photo-card-large:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(203, 86, 3, 0.3);
+    box-shadow: 0 10px 30px rgba(230, 126, 34, 0.3);
     background: #fff;
-    border-color: #a84502;
+    border-color: #e67e22;
     border-style: solid;
-    color: #a84502;
+    color: #e67e22;
 }
 
 .add-card-content {
@@ -172,7 +187,7 @@
 
 .add-card-icon {
     font-size: 36px;
-    color: #cb5603;
+    color: #e67e22;
     font-weight: 300;
     line-height: 1;
 }
@@ -180,7 +195,7 @@
 .add-card-text {
     font-size: 16px;
     font-weight: 600;
-    color: #cb5603;
+    color: #e67e22;
     text-align: center;
 }
 
@@ -188,9 +203,10 @@
 .add-photo-card:hover .add-card-text,
 .add-photo-card-large:hover .add-card-icon,
 .add-photo-card-large:hover .add-card-text {
-    color: #a84502;
+    color: #e67e22;
 }
 
+/* Стили для пустого состояния */
 .empty-state {
     text-align: center;
     padding: 80px 40px;
@@ -220,6 +236,7 @@
     line-height: 1.5;
 }
 
+/* Стили для миниатюр фото */
 .photo-thumbnail {
     transition: all 0.3s ease;
     position: relative;
@@ -229,7 +246,7 @@
 
 .photo-thumbnail:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 20px rgba(230, 126, 34, 0.15);
     background: #fff !important;
 }
 
@@ -237,11 +254,21 @@
     opacity: 1 !important;
 }
 
+/* Стили для PhotoSwipe */
 .pswp__img {
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
 }
 
+.pswp__counter {
+    color: #e67e22 !important;
+}
+
+.pswp__caption {
+    display: none !important;
+}
+
+/* Стили для кнопки удаления */
 .delete-btn {
     transition: all 0.3s ease !important;
     border: 1px solid rgba(255,255,255,0.3);
@@ -253,6 +280,7 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
+/* Адаптивность */
 @media (max-width: 768px) {
     .add-photo-card {
         min-height: 200px;
@@ -280,6 +308,10 @@
     
     .empty-state p {
         font-size: 16px;
+    }
+    
+    .photos-grid {
+        grid-template-columns: 1fr !important;
     }
 }
 </style>
@@ -373,7 +405,7 @@ function showDownloadNotification(gallery) {
     if (counterEl) {
         var originalText = counterEl.textContent;
         counterEl.textContent = 'Скачивание...';
-        counterEl.style.color = '#4CAF50';
+        counterEl.style.color = '#e67e22';
 
         setTimeout(function() {
             counterEl.textContent = originalText;
@@ -388,7 +420,7 @@ document.addEventListener('DOMContentLoaded', function() {
     thumbnails.forEach(function(thumb) {
         thumb.addEventListener('mouseenter', function() {
             this.style.transform = 'translateY(-5px)';
-            this.style.boxShadow = '0 8px 20px rgba(0,0,0,0.15)';
+            this.style.boxShadow = '0 8px 20px rgba(230, 126, 34, 0.15)';
             this.style.background = '#fff !important';
             
             var deleteBtn = this.querySelector('.delete-btn');
@@ -413,8 +445,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (addPhotoCard) {
         addPhotoCard.addEventListener('mouseenter', function() {
             this.style.transform = 'translateY(-5px)';
-            this.style.boxShadow = '0 8px 20px rgba(0,0,0,0.15)';
+            this.style.boxShadow = '0 8px 20px rgba(230, 126, 34, 0.15)';
             this.style.background = '#fff !important';
+            this.style.borderColor = '#e67e22';
         });
         
         addPhotoCard.addEventListener('mouseleave', function() {

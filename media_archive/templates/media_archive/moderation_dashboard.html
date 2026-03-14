@@ -6,37 +6,37 @@
 <div style="max-width: 1200px; margin: 0 auto;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <h1 class="page-title" style="margin-bottom: 0;">Панель модерации</h1>
-        <a href="{% url 'profile' %}" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+        <a href="{% url 'profile' %}" class="btn-back">
             ← В кабинет
         </a>
     </div>
 
-    
+    <!-- Статистика -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
         <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); text-align: center;">
-            <div style="font-size: 24px; color: #ffc107; margin-bottom: 5px;">{{ pending_years.count }}</div>
+            <div style="font-size: 24px; color: #e67e22; margin-bottom: 5px;">{{ pending_years.count }}</div>
             <div style="color: #666; font-size: 14px;">Учебные годы на модерации</div>
         </div>
         <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); text-align: center;">
-            <div style="font-size: 24px; color: #ffc107; margin-bottom: 5px;">{{ pending_classes.count }}</div>
+            <div style="font-size: 24px; color: #e67e22; margin-bottom: 5px;">{{ pending_classes.count }}</div>
             <div style="color: #666; font-size: 14px;">Классы на модерации</div>
         </div>
         <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); text-align: center;">
-            <div style="font-size: 24px; color: #ffc107; margin-bottom: 5px;">{{ pending_events.count }}</div>
+            <div style="font-size: 24px; color: #e67e22; margin-bottom: 5px;">{{ pending_events.count }}</div>
             <div style="color: #666; font-size: 14px;">События на модерации</div>
         </div>
         <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); text-align: center;">
-            <div style="font-size: 24px; color: #ffc107; margin-bottom: 5px;">{{ pending_photos.count }}</div>
+            <div style="font-size: 24px; color: #e67e22; margin-bottom: 5px;">{{ pending_photos.count }}</div>
             <div style="color: #666; font-size: 14px;">Фото на модерации</div>
         </div>
     </div>
 
-    
+    <!-- Учебные годы на модерации -->
     {% if pending_years %}
     <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 30px;">
-        <h2 style="color: #cb5603; margin-bottom: 20px;">📅 Учебные годы на модерации</h2>
+        <h2 style="color: #e67e22; margin-bottom: 20px;">📅 Учебные годы на модерации</h2>
         {% for year in pending_years %}
-        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #e67e22;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
                     <h4 style="margin: 0 0 5px 0; color: #333;">{{ year.year }}</h4>
@@ -45,14 +45,8 @@
                     </p>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <a href="{% url 'confirm_moderation' 'approve' 'year' year.id %}"
-                       style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; text-decoration: none; display: inline-block; transition: all 0.3s;">
-                        ✅ Одобрить
-                    </a>
-                    <a href="{% url 'confirm_moderation' 'reject' 'year' year.id %}"
-                       style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; text-decoration: none; display: inline-block; transition: all 0.3s;">
-                        ❌ Отклонить
-                    </a>
+                    <a href="{% url 'confirm_moderation' 'approve' 'year' year.id %}" class="btn-approve">✅ Одобрить</a>
+                    <a href="{% url 'confirm_moderation' 'reject' 'year' year.id %}" class="btn-reject">❌ Отклонить</a>
                 </div>
             </div>
         </div>
@@ -60,12 +54,12 @@
     </div>
     {% endif %}
 
-    
+    <!-- Классы на модерации -->
     {% if pending_classes %}
     <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 30px;">
-        <h2 style="color: #cb5603; margin-bottom: 20px;">🏫 Классы на модерации</h2>
+        <h2 style="color: #e67e22; margin-bottom: 20px;">🏫 Классы на модерации</h2>
         {% for class in pending_classes %}
-        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #e67e22;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
                     <h4 style="margin: 0 0 5px 0; color: #333;">{{ class.class_name }}</h4>
@@ -75,14 +69,8 @@
                     </p>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <a href="{% url 'confirm_moderation' 'approve' 'class' class.id %}"
-                       style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; text-decoration: none; display: inline-block; transition: all 0.3s;">
-                        ✅ Одобрить
-                    </a>
-                    <a href="{% url 'confirm_moderation' 'reject' 'class' class.id %}"
-                       style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; text-decoration: none; display: inline-block; transition: all 0.3s;">
-                        ❌ Отклонить
-                    </a>
+                    <a href="{% url 'confirm_moderation' 'approve' 'class' class.id %}" class="btn-approve">✅ Одобрить</a>
+                    <a href="{% url 'confirm_moderation' 'reject' 'class' class.id %}" class="btn-reject">❌ Отклонить</a>
                 </div>
             </div>
         </div>
@@ -90,12 +78,12 @@
     </div>
     {% endif %}
 
-   
+    <!-- События на модерации -->
     {% if pending_events %}
     <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 30px;">
-        <h2 style="color: #cb5603; margin-bottom: 20px;">📝 События на модерации</h2>
+        <h2 style="color: #e67e22; margin-bottom: 20px;">📝 События на модерации</h2>
         {% for event in pending_events %}
-        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #e67e22;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
                     <h4 style="margin: 0 0 5px 0; color: #333;">{{ event.title }}</h4>
@@ -106,14 +94,8 @@
                     </p>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <a href="{% url 'confirm_moderation' 'approve' 'event' event.id %}"
-                       style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; text-decoration: none; display: inline-block; transition: all 0.3s;">
-                        ✅ Одобрить
-                    </a>
-                    <a href="{% url 'confirm_moderation' 'reject' 'event' event.id %}"
-                       style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; text-decoration: none; display: inline-block; transition: all 0.3s;">
-                        ❌ Отклонить
-                    </a>
+                    <a href="{% url 'confirm_moderation' 'approve' 'event' event.id %}" class="btn-approve">✅ Одобрить</a>
+                    <a href="{% url 'confirm_moderation' 'reject' 'event' event.id %}" class="btn-reject">❌ Отклонить</a>
                 </div>
             </div>
         </div>
@@ -121,24 +103,22 @@
     </div>
     {% endif %}
 
-    
+    <!-- Фото на модерации -->
     {% if pending_photos %}
     <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 30px;">
-        <h2 style="color: #cb5603; margin-bottom: 20px;">📷 Фото на модерации</h2>
+        <h2 style="color: #e67e22; margin-bottom: 20px;">📷 Фото на модерации</h2>
         {% for photo in pending_photos %}
-        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 15px;">
+        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #e67e22;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                     {% if photo.image %}
                     <div style="position: relative;">
                         <img src="{{ photo.image.url }}" alt="Фото {{ photo.id }}"
                              style="width: 120px; height: 120px; object-fit: cover; border-radius: 6px; cursor: pointer; transition: all 0.3s ease;"
-                             onclick="openModerationPhoto({{ forloop.counter0 }})"
+                             onclick="openPhoto({{ forloop.counter0 }})"
                              onmouseover="this.style.transform='scale(1.05)'"
                              onmouseout="this.style.transform='scale(1)'">
-                        <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px;">
-                            🔍 Просмотр
-                        </div>
+                        <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px;">🔍</div>
                     </div>
                     {% endif %}
                     <div>
@@ -152,14 +132,8 @@
                     </div>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <a href="{% url 'confirm_moderation' 'approve' 'photo' photo.id %}"
-                       style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; text-decoration: none; display: inline-block; transition: all 0.3s;">
-                        ✅ Одобрить
-                    </a>
-                    <a href="{% url 'confirm_moderation' 'reject' 'photo' photo.id %}"
-                       style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; text-decoration: none; display: inline-block; transition: all 0.3s;">
-                        ❌ Отклонить
-                    </a>
+                    <a href="{% url 'confirm_moderation' 'approve' 'photo' photo.id %}" class="btn-approve">✅ Одобрить</a>
+                    <a href="{% url 'confirm_moderation' 'reject' 'photo' photo.id %}" class="btn-reject">❌ Отклонить</a>
                 </div>
             </div>
         </div>
@@ -167,16 +141,17 @@
     </div>
     {% endif %}
 
+    <!-- Пустое состояние -->
     {% if not pending_years and not pending_classes and not pending_events and not pending_photos %}
     <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
         <div style="font-size: 48px; margin-bottom: 20px;">✅</div>
         <h3 style="color: #666; margin-bottom: 15px;">Нет объектов для модерации</h3>
-        <p style="color: #888;">Все контент прошел модерацию. Отличная работа!</p>
+        <p style="color: #888;">Весь контент прошел модерацию. Отличная работа!</p>
     </div>
     {% endif %}
 </div>
 
-
+<!-- PhotoSwipe для просмотра фото -->
 <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="pswp__bg"></div>
     <div class="pswp__scroll-wrap">
@@ -211,41 +186,104 @@
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<style>
+.btn-back {
+    background: #6c757d;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    border: 2px solid #6c757d;
+    transition: all 0.3s;
+    display: inline-block;
+    font-weight: 500;
+}
+.btn-back:hover {
+    background: white;
+    color: #6c757d;
+    border-color: #6c757d;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+}
+.btn-approve {
+    background: #28a745;
+    color: white;
+    border: 2px solid #28a745;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+.btn-approve:hover {
+    background: white;
+    color: #28a745;
+    border-color: #28a745;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+.btn-reject {
+    background: #dc3545;
+    color: white;
+    border: 2px solid #dc3545;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+.btn-reject:hover {
+    background: white;
+    color: #dc3545;
+    border-color: #dc3545;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+h2 {
+    color: #e67e22 !important;
+    font-family: 'Roboto', Arial, sans-serif;
+}
+div[style*="background: #fff3cd"] {
+    transition: all 0.3s ease;
+}
+div[style*="background: #fff3cd"]:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+@media (max-width: 768px) {
+    .btn-back { width: 100%; text-align: center; }
+    div[style*="display: flex; justify-content: space-between;"] { flex-direction: column; gap: 15px; }
+    .btn-approve, .btn-reject { width: 100%; text-align: center; }
+    div[style*="display: flex; gap: 10px;"] { width: 100%; flex-direction: column; }
+}
+</style>
+
 <script>
-
-var moderationPhotoSwipeItems = [
+var photoItems = [
     {% for photo in pending_photos %}
-    {
-        src: "{{ photo.image.url }}",
-        w: 0,
-        h: 0
-
-    }{% if not forloop.last %},{% endif %}
+    { src: "{{ photo.image.url }}", w: 0, h: 0 }{% if not forloop.last %},{% endif %}
     {% endfor %}
 ];
-
 
 function getImageSize(src) {
     return new Promise(function(resolve, reject) {
         var img = new Image();
-        img.onload = function() {
-            resolve({
-                width: this.naturalWidth,
-                height: this.naturalHeight
-            });
-        };
+        img.onload = function() { resolve({ width: this.naturalWidth, height: this.naturalHeight }); };
         img.onerror = reject;
         img.src = src;
     });
 }
 
-
-function openModerationPhoto(index) {
+function openPhoto(index) {
+    if (!photoItems.length) return;
     var pswpElement = document.querySelectorAll('.pswp')[0];
-
     var options = {
         index: parseInt(index),
         bgOpacity: 0.9,
@@ -254,22 +292,9 @@ function openModerationPhoto(index) {
         history: false,
         shareEl: false,
         fullscreenEl: true,
-        zoomEl: true,
-        maxSpreadZoom: 3,
-        getDoubleTapZoom: function(isMouseClick, item) {
-            return item.initialZoomLevel < 0.7 ? 1 : 1.5;
-        },
-        imageClickAction: 'zoom',
-        tapToToggleControls: true,
-        pinchToClose: false,
-        
-        addCaptionHTMLFn: function(item, captionEl) {
-            return false; 
-        }
+        zoomEl: true
     };
-
-    var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, moderationPhotoSwipeItems, options);
-
+    var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, photoItems, options);
     gallery.listen('gettingData', function(index, item) {
         if (item.w < 1 || item.h < 1) {
             getImageSize(item.src).then(function(size) {
@@ -285,141 +310,7 @@ function openModerationPhoto(index) {
             });
         }
     });
-
-    
-    gallery.listen('afterInit', function() {
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'd' || e.key === 'D') {
-                e.preventDefault();
-                downloadModerationImage(gallery);
-            }
-        });
-    });
-
-    
-    gallery.listen('mouseUsed', function() {
-        var frame = gallery.currItem.holder;
-        if (frame) {
-            frame.addEventListener('wheel', function(e) {
-                e.preventDefault();
-                if (e.ctrlKey) {
-                    var delta = e.deltaY > 0 ? -0.2 : 0.2;
-                    var newZoom = Math.max(0.5, Math.min(3, gallery.currItem.initialZoomLevel + delta));
-                    gallery.zoomTo(newZoom, {x: e.clientX, y: e.clientY}, 200);
-                } else {
-                    if (gallery.currItem.initialZoomLevel > 1) {
-                        var currentPanY = gallery.currItem.pan.y;
-                        gallery.currItem.pan.y = currentPanY - e.deltaY * 0.5;
-                        gallery.updateCurrItem();
-                    }
-                }
-            }, { passive: false });
-        }
-    });
-
     gallery.init();
 }
-
-
-function downloadModerationImage(gallery) {
-    if (!gallery) return;
-
-    var item = gallery.currItem;
-    var currentIndex = gallery.getCurrentIndex();
-    var link = document.createElement('a');
-    link.href = item.src;
-    link.download = 'moderation_photo_' + (currentIndex + 1) + '.jpg';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    showModerationDownloadNotification(gallery);
-}
-
-
-function showModerationDownloadNotification(gallery) {
-    var counterEl = gallery.ui.element.querySelector('.pswp__counter');
-    if (counterEl) {
-        var originalText = counterEl.textContent;
-        counterEl.textContent = 'Скачивание...';
-        counterEl.style.color = '#4CAF50';
-
-        setTimeout(function() {
-            counterEl.textContent = originalText;
-            counterEl.style.color = '';
-        }, 800);
-    }
-}
-
-
-document.addEventListener('DOMContentLoaded', function() {
-    const approveButtons = document.querySelectorAll('a[href*="approve"]');
-    const rejectButtons = document.querySelectorAll('a[href*="reject"]');
-    
-    approveButtons.forEach(button => {
-        button.addEventListener('mouseenter', function() {
-            this.style.transform = 'scale(1.05)';
-            this.style.boxShadow = '0 2px 8px rgba(40, 167, 69, 0.3)';
-        });
-        button.addEventListener('mouseleave', function() {
-            this.style.transform = 'scale(1)';
-            this.style.boxShadow = 'none';
-        });
-    });
-    
-    rejectButtons.forEach(button => {
-        button.addEventListener('mouseenter', function() {
-            this.style.transform = 'scale(1.05)';
-            this.style.boxShadow = '0 2px 8px rgba(220, 53, 69, 0.3)';
-        });
-        button.addEventListener('mouseleave', function() {
-            this.style.transform = 'scale(1)';
-            this.style.boxShadow = 'none';
-        });
-    });
-});
 </script>
-
-<style>
-
-a[href*="approve"]:hover {
-    background: #218838 !important;
-    transform: scale(1.05);
-}
-
-a[href*="reject"]:hover {
-    background: #c82333 !important;
-    transform: scale(1.05);
-}
-
-
-.pswp__img {
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-}
-
-
-.pswp__caption {
-    display: none !important;
-}
-
-
-@media (max-width: 768px) {
-    .moderation-item {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .moderation-actions {
-        justify-content: center;
-    }
-    
-    
-    a[href*="approve"], 
-    a[href*="reject"] {
-        padding: 10px 14px !important;
-        font-size: 13px !important;
-    }
-}
-</style>
 {% endblock %}
